@@ -19,18 +19,38 @@ type park struct {
 	Longitude float32 `json:"longitude"`
 }
 
+// CollectorChain represents a chain of collectors
+type CollectorChain struct {
+	collector *colly.Collector
+	next      *CollectorChain
+}
+
+// VisitNext calls Visit on the next collector in the chain
+func (cc *CollectorChain) VisitNext(url string) {
+	if cc.next != nil {
+		cc.next.collector.Visit(url)
+	}
+}
+
+// Wait waits for the current collector to finish
+func (cc *CollectorChain) Wait() {
+	cc.collector.Wait()
+}
+
 func main(){
 	// Slice to store all parks
 	var parks []park
 	var mu sync.Mutex // Mutex to safely append to slice from concurrent requests
 
+	// Create collectors
 	cHomePage := colly.NewCollector()
-
-	// Level 1 Collector: Get park list from JSON
 	cJsonAPI := colly.NewCollector()
-
-	// Level 2 Collector: Scrape individual park pages
 	cParkPage := colly.NewCollector()
+
+	// Build the chain: HomePage -> JsonAPI -> ParkPage
+	chainParkPage := &CollectorChain{collector: cParkPage, next: nil}
+	chainJsonAPI := &CollectorChain{collector: cJsonAPI, next: chainParkPage}
+	chainHomePage := &CollectorChain{collector: cHomePage, next: chainJsonAPI}
 
 	// ===== Level 2: Finding Park API =======
 	cHomePage.OnRequest(func(r *colly.Request){
@@ -40,7 +60,7 @@ func main(){
 	cHomePage.OnHTML("[data-api-url]", func(e *colly.HTMLElement) {
 		jsonURL := e.Request.AbsoluteURL(e.Attr("data-api-url"))
 		fmt.Println("[Level 0] Found JSON API:", jsonURL)
-		cJsonAPI.Visit(jsonURL)
+		chainHomePage.VisitNext(jsonURL)
 	})
 
 	// ===== LEVEL 1: JSON Extraction =====
@@ -80,7 +100,7 @@ func main(){
 							if url, ok := meta["dynamicPageLink"].(string); ok {
 								absoluteURL := r.Request.AbsoluteURL(url)
 								fmt.Printf("[Level 1] Queueing park page: %s\n", absoluteURL)
-								cParkPage.Visit(absoluteURL)
+								chainJsonAPI.VisitNext(absoluteURL)
 							}
 
 						}
@@ -142,12 +162,12 @@ func main(){
 	})
 
 	// Start the scraping process
-	cHomePage.Visit("https://dnr.illinois.gov/parks/allparks.html")
+	chainHomePage.collector.Visit("https://dnr.illinois.gov/parks/allparks.html")
 
-	// Wait for all requests to finish
-	cHomePage.Wait()
-	cJsonAPI.Wait()
-	cParkPage.Wait()
+	// Wait for all collectors in the chain to finish
+	chainHomePage.Wait()
+	chainJsonAPI.Wait()
+	chainParkPage.Wait()
 
 	// Serialize parks slice to JSON file
 	fmt.Printf("\n[Final] Scraped %d parks total\n", len(parks))
