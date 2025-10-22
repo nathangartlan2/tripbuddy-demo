@@ -8,6 +8,7 @@ erDiagram
     Park {
         int id PK
         string name
+        string parkCode
         decimal latitude
         decimal longitude
         string state_code
