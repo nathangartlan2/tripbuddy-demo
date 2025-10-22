@@ -6,8 +6,6 @@ var app = builder.Build();
 
 IParksRepository parkRepo = new FileParkRepository();
 
-Dictionary<string, Park> parks = new();
-
 app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/parks", async () => await parkRepo.GetParksAsync());
