@@ -17,6 +17,13 @@ type park struct {
 	StateCode string `json:"stateCode"`
 	Latitude float32 `json:"latitude"`
 	Longitude float32 `json:"longitude"`
+	Activities []parkActivity `json:"activities"`
+}
+
+type parkActivity struct {
+	Name string `json:"activityName`
+	Description string `json:"description"`
+
 }
 
 // CollectorChain represents a chain of collectors
@@ -142,6 +149,23 @@ func main(){
 		// Convert lat/long strings to float32
 		latitude, err1 := strconv.ParseFloat(latitudeStr, 32)
 		longitude, err2 := strconv.ParseFloat(longitudeStr, 32)
+		activities := []parkActivity{}
+
+		e.ForEach("ul.cmp-contentfragment__element-linkList li a", func(_ int, el *colly.HTMLElement) {
+			activityName := strings.TrimSpace(el.Text)
+			href := el.Attr("href")
+			ariaLabel := el.Attr("aria-label")
+
+
+			activity := parkActivity{
+				Name : activityName,
+				Description:  "",
+			}
+
+			activities = append(activities, activity)
+
+			fmt.Printf("Activity: %s, URL: %s, Label: %s\n", activity, href, ariaLabel)
+		})
 
 		// Only add park if we have valid data
 		if parkName != "" && err1 == nil && err2 == nil {
@@ -150,6 +174,7 @@ func main(){
 				StateCode: "IL", // Illinois - could be extracted from page if needed
 				Latitude:  float32(latitude),
 				Longitude: float32(longitude),
+				Activities: activities,
 			}
 
 			// Thread-safe append to parks slice
