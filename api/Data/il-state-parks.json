@@ -1,0 +1,782 @@
+[
+  {
+    "name": "Adeline Jay Geo-Karis Illinois Beach State Park",
+    "stateCode": "IL",
+    "latitude": 42.466,
+    "longitude": -87.81
+  },
+  {
+    "name": "Anderson Lake SFWA",
+    "stateCode": "IL",
+    "latitude": 40.19,
+    "longitude": -90.213
+  },
+  {
+    "name": "Apple River Canyon State Park",
+    "stateCode": "IL",
+    "latitude": 42.448,
+    "longitude": -90.043
+  },
+  {
+    "name": "Argyle Lake State Park",
+    "stateCode": "IL",
+    "latitude": 40.449,
+    "longitude": -90.803
+  },
+  {
+    "name": "Banner Marsh State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.478,
+    "longitude": -89.95
+  },
+  {
+    "name": "Beall Woods State Park",
+    "stateCode": "IL",
+    "latitude": 38.354,
+    "longitude": -87.828
+  },
+  {
+    "name": "Beaver Dam State Park",
+    "stateCode": "IL",
+    "latitude": 39.209,
+    "longitude": -89.974
+  },
+  {
+    "name": "Big Bend",
+    "stateCode": "IL",
+    "latitude": 41.64905,
+    "longitude": -90.0183
+  },
+  {
+    "name": "Big River State Forest",
+    "stateCode": "IL",
+    "latitude": 41.049,
+    "longitude": -90.93
+  },
+  {
+    "name": "Buffalo Rock State Park",
+    "stateCode": "IL",
+    "latitude": 41.328,
+    "longitude": -88.91
+  },
+  {
+    "name": "Burning Star State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 37.838,
+    "longitude": -89.182
+  },
+  {
+    "name": "Cache River State Natural Area",
+    "stateCode": "IL",
+    "latitude": 37.335,
+    "longitude": -88.938
+  },
+  {
+    "name": "Cape Bend State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 37.27762,
+    "longitude": -89.44931
+  },
+  {
+    "name": "Carlyle Lake SFWA",
+    "stateCode": "IL",
+    "latitude": 38.961,
+    "longitude": -89.094
+  },
+  {
+    "name": "Castle Rock State Park",
+    "stateCode": "IL",
+    "latitude": 41.978,
+    "longitude": -89.364
+  },
+  {
+    "name": "Cave-in-Rock State Park",
+    "stateCode": "IL",
+    "latitude": 37.469,
+    "longitude": -88.159
+  },
+  {
+    "name": "Chain O' Lakes State Park",
+    "stateCode": "IL",
+    "latitude": 42.467,
+    "longitude": -88.189
+  },
+  {
+    "name": "Channahon State Park",
+    "stateCode": "IL",
+    "latitude": 41.424,
+    "longitude": -88.228
+  },
+  {
+    "name": "Clinton Lake State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 40.161,
+    "longitude": -88.789
+  },
+  {
+    "name": "Coffeen Lake State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 39.057,
+    "longitude": -89.414
+  },
+  {
+    "name": "Crawford County Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 39.09905,
+    "longitude": -87.70246
+  },
+  {
+    "name": "Delabar State Park",
+    "stateCode": "IL",
+    "latitude": 40.966,
+    "longitude": -90.938
+  },
+  {
+    "name": "Des Plaines State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 41.372,
+    "longitude": -88.207
+  },
+  {
+    "name": "Devils Island Wildlife Management Area",
+    "stateCode": "IL",
+    "latitude": 37.32748,
+    "longitude": -89.43405
+  },
+  {
+    "name": "Dixon Springs State Park",
+    "stateCode": "IL",
+    "latitude": 37.381,
+    "longitude": -88.666
+  },
+  {
+    "name": "Donnelley/DePue SFWAs",
+    "stateCode": "IL",
+    "latitude": 41.324,
+    "longitude": -89.308
+  },
+  {
+    "name": "Eagle Creek State Park",
+    "stateCode": "IL",
+    "latitude": 39.51,
+    "longitude": -88.719
+  },
+  {
+    "name": "Edward R. Madigan State Park",
+    "stateCode": "IL",
+    "latitude": 40.117,
+    "longitude": -89.4
+  },
+  {
+    "name": "Fall Creek Scenic Overlook SNA",
+    "stateCode": "IL",
+    "latitude": 39.785,
+    "longitude": -91.295
+  },
+  {
+    "name": "Ferne Clyffe State Park",
+    "stateCode": "IL",
+    "latitude": 37.531,
+    "longitude": -88.97
+  },
+  {
+    "name": "Fort Massac State Park",
+    "stateCode": "IL",
+    "latitude": 37.144,
+    "longitude": -88.712
+  },
+  {
+    "name": "Fox Ridge State Park",
+    "stateCode": "IL",
+    "latitude": 39.404,
+    "longitude": -88.147
+  },
+  {
+    "name": "Frank Holten State Park",
+    "stateCode": "IL",
+    "latitude": 38.594,
+    "longitude": -90.105
+  },
+  {
+    "name": "Franklin Creek State Natural Area",
+    "stateCode": "IL",
+    "latitude": 41.857,
+    "longitude": -89.352
+  },
+  {
+    "name": "Fults Hill Prairie State Natural Area",
+    "stateCode": "IL",
+    "latitude": 38.157,
+    "longitude": -90.186
+  },
+  {
+    "name": "Gebhard Woods State Park",
+    "stateCode": "IL",
+    "latitude": 41.357,
+    "longitude": -88.436
+  },
+  {
+    "name": "Giant City State Park",
+    "stateCode": "IL",
+    "latitude": 37.602,
+    "longitude": -89.189
+  },
+  {
+    "name": "Golconda Marina",
+    "stateCode": "IL",
+    "latitude": 37.372,
+    "longitude": -88.482
+  },
+  {
+    "name": "Goose Lake Prairie State Natural Area",
+    "stateCode": "IL",
+    "latitude": 41.381,
+    "longitude": -89.691
+  },
+  {
+    "name": "Green River SWA",
+    "stateCode": "IL",
+    "latitude": 41.635,
+    "longitude": -89.507
+  },
+  {
+    "name": "Hamilton County",
+    "stateCode": "IL",
+    "latitude": 38.058,
+    "longitude": -88.397
+  },
+  {
+    "name": "Harry 'Babe' Woodyard State Natural Area",
+    "stateCode": "IL",
+    "latitude": 39.955986,
+    "longitude": -87.54872
+  },
+  {
+    "name": "Heidecke Lake SFWA",
+    "stateCode": "IL",
+    "latitude": 41.36,
+    "longitude": -88.325
+  },
+  {
+    "name": "Henderson County Conservation Area",
+    "stateCode": "IL",
+    "latitude": 41.09,
+    "longitude": -90.936
+  },
+  {
+    "name": "Hennepin Canal State Trail",
+    "stateCode": "IL",
+    "latitude": 41.381,
+    "longitude": -89.691
+  },
+  {
+    "name": "Hidden Springs State Forest",
+    "stateCode": "IL",
+    "latitude": 39.315,
+    "longitude": -88.693
+  },
+  {
+    "name": "Horseshoe Lake Alexander County",
+    "stateCode": "IL",
+    "latitude": 37.14,
+    "longitude": -89.343
+  },
+  {
+    "name": "Horseshoe Lake State Park (Madison County)",
+    "stateCode": "IL",
+    "latitude": 38.703,
+    "longitude": -90.071
+  },
+  {
+    "name": "Illini State Park",
+    "stateCode": "IL",
+    "latitude": 41.321,
+    "longitude": -88.708
+  },
+  {
+    "name": "Illinois Caverns State Natural Area",
+    "stateCode": "IL",
+    "latitude": 38.234,
+    "longitude": -90.137
+  },
+  {
+    "name": "Illinois and Michigan Canal State Trail",
+    "stateCode": "IL",
+    "latitude": 41.39,
+    "longitude": -88.48
+  },
+  {
+    "name": "Iroquois County State Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.994,
+    "longitude": -87.599
+  },
+  {
+    "name": "James \"Pate\" Philip State Park",
+    "stateCode": "IL",
+    "latitude": 41.978,
+    "longitude": -88.257
+  },
+  {
+    "name": "Jim Edgar Panther Creek State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 39.998,
+    "longitude": -90.069
+  },
+  {
+    "name": "Johnson-Sauk Trail State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 41.326,
+    "longitude": -89.892
+  },
+  {
+    "name": "Jubilee College State Park",
+    "stateCode": "IL",
+    "latitude": 40.824,
+    "longitude": -89.799
+  },
+  {
+    "name": "Kankakee River State Park",
+    "stateCode": "IL",
+    "latitude": 41.203,
+    "longitude": -87.979
+  },
+  {
+    "name": "Kaskaskia River",
+    "stateCode": "IL",
+    "latitude": 39.582,
+    "longitude": -88.443
+  },
+  {
+    "name": "Kickapoo State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 40.14,
+    "longitude": -87.735
+  },
+  {
+    "name": "Kidd Lake State Natural Area",
+    "stateCode": "IL",
+    "latitude": 38.14567,
+    "longitude": -90.2047
+  },
+  {
+    "name": "Kinkaid Lake SFWA",
+    "stateCode": "IL",
+    "latitude": 37.776,
+    "longitude": -89.379
+  },
+  {
+    "name": "LaSalle Lake SFWA",
+    "stateCode": "IL",
+    "latitude": 41.321,
+    "longitude": -88.711
+  },
+  {
+    "name": "Lake Le-Aqua-Na State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 42.423,
+    "longitude": -89.824
+  },
+  {
+    "name": "Lake Murphysboro State Park",
+    "stateCode": "IL",
+    "latitude": 37.773,
+    "longitude": -89.379
+  },
+  {
+    "name": "Lincoln Trail State Park",
+    "stateCode": "IL",
+    "latitude": 39.347,
+    "longitude": -87.704
+  },
+  {
+    "name": "Lincoln Trail Homestead State Park \u0026 Memorial",
+    "stateCode": "IL",
+    "latitude": 39.803,
+    "longitude": -89.102
+  },
+  {
+    "name": "Little Grassy Fish Hatchery",
+    "stateCode": "IL",
+    "latitude": 37.651,
+    "longitude": -89.149
+  },
+  {
+    "name": "Lowden State Park",
+    "stateCode": "IL",
+    "latitude": 42.035,
+    "longitude": -89.325
+  },
+  {
+    "name": "Lowden-Miller",
+    "stateCode": "IL",
+    "latitude": 41.962,
+    "longitude": -89.366
+  },
+  {
+    "name": "Mackinaw River SFWA",
+    "stateCode": "IL",
+    "latitude": 40.554,
+    "longitude": -89.292
+  },
+  {
+    "name": "Marseilles State Fish \u0026 Wildlife Area (Upland Game/Furbearer)",
+    "stateCode": "IL",
+    "latitude": 41.27725,
+    "longitude": -88.68498
+  },
+  {
+    "name": "Marshall SFWA",
+    "stateCode": "IL",
+    "latitude": 40.955,
+    "longitude": -89.429
+  },
+  {
+    "name": "Matthiessen State Park",
+    "stateCode": "IL",
+    "latitude": 41.286,
+    "longitude": -89.025
+  },
+  {
+    "name": "Mautino State Fish \u0026 Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 41.323,
+    "longitude": -89.719
+  },
+  {
+    "name": "Mazonia-Braidwood State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 41.215,
+    "longitude": -88.27
+  },
+  {
+    "name": "Mermet Lake State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 37.275,
+    "longitude": -88.849
+  },
+  {
+    "name": "Middle Fork State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.193,
+    "longitude": -87.753
+  },
+  {
+    "name": "Mississippi Palisades State Park",
+    "stateCode": "IL",
+    "latitude": 42.144,
+    "longitude": -90.168
+  },
+  {
+    "name": "Mississippi River SFWA",
+    "stateCode": "IL",
+    "latitude": 38.972,
+    "longitude": -90.471
+  },
+  {
+    "name": "Moraine Hills State Park \u0026 McHenry Dam State Park",
+    "stateCode": "IL",
+    "latitude": 42.323,
+    "longitude": -88.227
+  },
+  {
+    "name": "Moraine View State Park",
+    "stateCode": "IL",
+    "latitude": 40.415,
+    "longitude": -88.729
+  },
+  {
+    "name": "Morrison-Rockwood State Park",
+    "stateCode": "IL",
+    "latitude": 41.848,
+    "longitude": -89.965
+  },
+  {
+    "name": "Nauvoo",
+    "stateCode": "IL",
+    "latitude": 40.545,
+    "longitude": -91.385
+  },
+  {
+    "name": "Newton Lake State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 38.922,
+    "longitude": -88.305
+  },
+  {
+    "name": "North Point Marina State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 42.482,
+    "longitude": -87.806
+  },
+  {
+    "name": "Peabody River King",
+    "stateCode": "IL",
+    "latitude": 38.32097,
+    "longitude": -89.849266
+  },
+  {
+    "name": "Pere Marquette State Park",
+    "stateCode": "IL",
+    "latitude": 38.973,
+    "longitude": -90.543
+  },
+  {
+    "name": "Piney Creek Ravine State Natural Area",
+    "stateCode": "IL",
+    "latitude": 37.89,
+    "longitude": -89.638
+  },
+  {
+    "name": "Powerton Lake State Fish \u0026 Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.5385,
+    "longitude": -89.70085
+  },
+  {
+    "name": "Prophetstown State Park",
+    "stateCode": "IL",
+    "latitude": 41.672,
+    "longitude": -89.927
+  },
+  {
+    "name": "Pyramid State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 38.006,
+    "longitude": -89.417
+  },
+  {
+    "name": "Ramsey Lake State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 39.16,
+    "longitude": -89.125
+  },
+  {
+    "name": "Randolph County State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 37.968,
+    "longitude": -89.802
+  },
+  {
+    "name": "Ray Norbut",
+    "stateCode": "IL",
+    "latitude": 39.109,
+    "longitude": -90.725
+  },
+  {
+    "name": "Red Hills State Park",
+    "stateCode": "IL",
+    "latitude": 38.725,
+    "longitude": -87.843
+  },
+  {
+    "name": "Rice Lake SFWA",
+    "stateCode": "IL",
+    "latitude": 40.463,
+    "longitude": -89.933
+  },
+  {
+    "name": "Rock Cut State Park",
+    "stateCode": "IL",
+    "latitude": 42.342,
+    "longitude": -88.973
+  },
+  {
+    "name": "Rock Island Trail State Park",
+    "stateCode": "IL",
+    "latitude": 40.966,
+    "longitude": -89.745
+  },
+  {
+    "name": "Saline County SFWA",
+    "stateCode": "IL",
+    "latitude": 37.689,
+    "longitude": -88.39
+  },
+  {
+    "name": "Sam Dale Lake State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 38.536,
+    "longitude": -88.585
+  },
+  {
+    "name": "Sam Parr SFWA",
+    "stateCode": "IL",
+    "latitude": 39.011,
+    "longitude": -88.119
+  },
+  {
+    "name": "Sand Ridge State Forest",
+    "stateCode": "IL",
+    "latitude": 40.401,
+    "longitude": -89.879
+  },
+  {
+    "name": "Sanganois State Fish \u0026 Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.09345,
+    "longitude": -90.29089
+  },
+  {
+    "name": "Sangchris Lake State Park",
+    "stateCode": "IL",
+    "latitude": 39.656,
+    "longitude": -89.487
+  },
+  {
+    "name": "Shabbona Lake State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 41.733,
+    "longitude": -88.865
+  },
+  {
+    "name": "Shelbyville State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 39.634,
+    "longitude": -88.708
+  },
+  {
+    "name": "Sielbeck Forest SNA",
+    "stateCode": "IL",
+    "latitude": 37.276,
+    "longitude": 88.849
+  },
+  {
+    "name": "Siloam Springs State Park",
+    "stateCode": "IL",
+    "latitude": 39.894,
+    "longitude": -90.93
+  },
+  {
+    "name": "Silver Springs State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 41.626,
+    "longitude": -88.518
+  },
+  {
+    "name": "Snakeden Hollow SFWA",
+    "stateCode": "IL",
+    "latitude": 41.033,
+    "longitude": -90.07
+  },
+  {
+    "name": "Spitler Woods State Natural Area",
+    "stateCode": "IL",
+    "latitude": 39.779,
+    "longitude": -88.862
+  },
+  {
+    "name": "Spring Lake State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.473,
+    "longitude": -89.868
+  },
+  {
+    "name": "Starved Rock State Park",
+    "stateCode": "IL",
+    "latitude": 41.309,
+    "longitude": -88.989
+  },
+  {
+    "name": "Stephen A. Forbes SRA",
+    "stateCode": "IL",
+    "latitude": 38.709,
+    "longitude": -88.746
+  },
+  {
+    "name": "Ten Mile Creek State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 38.082,
+    "longitude": -88.625
+  },
+  {
+    "name": "Trail of Tears State Forest",
+    "stateCode": "IL",
+    "latitude": 37.48,
+    "longitude": -89.351
+  },
+  {
+    "name": "Tunnel Hill State Trail",
+    "stateCode": "IL",
+    "latitude": 37.417,
+    "longitude": -88.887
+  },
+  {
+    "name": "Turkey Bluffs",
+    "stateCode": "IL",
+    "latitude": 37.88137,
+    "longitude": -89.7647
+  },
+  {
+    "name": "Union County SFWA",
+    "stateCode": "IL",
+    "latitude": 37.392,
+    "longitude": -89.376
+  },
+  {
+    "name": "Volo Bog State Natural Area",
+    "stateCode": "IL",
+    "latitude": 42.351,
+    "longitude": -88.189
+  },
+  {
+    "name": "Walnut Point State Park",
+    "stateCode": "IL",
+    "latitude": 39.704,
+    "longitude": -88.029
+  },
+  {
+    "name": "Washington County State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 38.281,
+    "longitude": -89.364
+  },
+  {
+    "name": "Wayne Fitzgerrell State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 38.092,
+    "longitude": -88.949
+  },
+  {
+    "name": "Weinberg-King State Fish and Wildlife Area",
+    "stateCode": "IL",
+    "latitude": 40.227,
+    "longitude": -90.899
+  },
+  {
+    "name": "Weldon Springs State Park",
+    "stateCode": "IL",
+    "latitude": 40.126,
+    "longitude": -88.925
+  },
+  {
+    "name": "White Pines Forest State Park",
+    "stateCode": "IL",
+    "latitude": 41.993,
+    "longitude": -89.465
+  },
+  {
+    "name": "William G. Stratton State Park",
+    "stateCode": "IL",
+    "latitude": 41.355,
+    "longitude": -88.418
+  },
+  {
+    "name": "William W. Powers State Recreation Area",
+    "stateCode": "IL",
+    "latitude": 41.66,
+    "longitude": -87.539
+  },
+  {
+    "name": "Wolf Creek State Park",
+    "stateCode": "IL",
+    "latitude": 39.482,
+    "longitude": -88.689
+  },
+  {
+    "name": "Woodford SFWA",
+    "stateCode": "IL",
+    "latitude": 40.955,
+    "longitude": -89.429
+  }
+]
