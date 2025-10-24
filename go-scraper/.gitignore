@@ -33,6 +33,7 @@ Thumbs.db
 
 # Scraped data output files
 *.json
+!config.example.json
 *.csv
 *.html
 raw_page.html
