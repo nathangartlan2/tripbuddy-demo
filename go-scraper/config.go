@@ -13,11 +13,12 @@ type Config struct {
 
 // ScraperConfig holds scraper-specific configuration
 type ScraperConfig struct {
-	Illinois IllinoisConfig `json:"illinois"`
+	Illinois StateConfig `json:"illinois"`
+	Indiana StateConfig `json:"indiana"`
 }
 
-// IllinoisConfig holds Illinois scraper configuration
-type IllinoisConfig struct {
+// StateConfig holds Illinois scraper configuration
+type StateConfig struct {
 	BaseURL   string        `json:"baseURL"`
 	StateCode string        `json:"stateCode"`
 	Pages     PagesConfig   `json:"pages"`
@@ -48,7 +49,7 @@ type HomepageSelectors struct {
 	JSONAPI         JSONAPISelectors `json:"jsonAPI,omitempty"`         // JSON parsing config
 
 	// For Static HTML strategy
-	StaticHTML StaticHTMLSelectors `json:"staticHTML,omitempty"` // Static HTML parsing config
+	StaticHTML StaticHTMLConfig `json:"staticHTML,omitempty"` // Static HTML parsing config
 }
 
 // JSONAPISelectors for parsing the JSON response
@@ -58,10 +59,23 @@ type JSONAPISelectors struct {
 	ParkURLPath   string `json:"parkURLPath"`   // e.g., "meta.dynamicPageLink"
 }
 
-// StaticHTMLSelectors for parsing static HTML park lists
-type StaticHTMLSelectors struct {
-	ParkLinksSelector string `json:"parkLinksSelector"` // CSS selector for park links
-	ParkNameAttribute string `json:"parkNameAttribute"` // Attribute to get park name (e.g., "text", "title", "aria-label")
+// StaticHTMLConfig for parsing static HTML park lists
+type StaticHTMLConfig struct {
+	Section    HTMLSection `json:"section"`    // Parent section containing park links
+	URLElement URLElement  `json:"urlElement"` // URL element configuration
+}
+
+// HTMLSection identifies the parent container for park links
+type HTMLSection struct {
+	ID       string `json:"id,omitempty"`       // HTML id attribute
+	Class    string `json:"class,omitempty"`    // HTML class attribute
+	Selector string `json:"selector,omitempty"` // CSS selector (most flexible option)
+}
+
+// URLElement configures how to identify and extract park URLs
+type URLElement struct {
+	HrefPattern       string `json:"hrefPattern"`                 // Pattern to match href (e.g., "/dnr/state-parks/parks-lakes/*")
+	ParkNameAttribute string `json:"parkNameAttribute,omitempty"` // Attribute to get park name (e.g., "text", "title", "aria-label")
 }
 
 // ParkPageSelectors for extracting park details from HTML

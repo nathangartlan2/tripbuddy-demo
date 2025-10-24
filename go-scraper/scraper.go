@@ -16,15 +16,9 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Create activity scraper
-	activityScraperConfig := scrapers.ActivityScraperConfig{
-		ActivitiesSelector: config.Scrapers.Illinois.Pages.ParkPage.Selectors.ActivitiesSelector,
-	}
-	activityScraper := scrapers.NewILParkActivityScraper(activityScraperConfig)
-
 	// Create park collector based on homepage strategy
 	var parkCollector scrapers.ParkCollectorScraper
-	switch config.Scrapers.Illinois.Pages.Homepage.Strategy {
+	switch config.Scrapers.Indiana.Pages.Homepage.Strategy {
 	case "json_api":
 		jsonSelectors := scrapers.JSONAPISelectors{
 			ParksListPath: config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParksListPath,
@@ -36,43 +30,38 @@ func main() {
 			jsonSelectors,
 		)
 	case "static_html":
+		// Convert config types to scraper types
 		staticSelectors := scrapers.StaticHTMLSelectors{
-			ParkLinksSelector: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.ParkLinksSelector,
-			ParkNameAttribute: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.ParkNameAttribute,
+			Section: scrapers.HTMLSection{
+				ID:       config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.Section.ID,
+				Class:    config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.Section.Class,
+				Selector: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.Section.Selector,
+			},
+			URLElement: scrapers.URLElement{
+				HrefPattern:       config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.URLElement.HrefPattern,
+				ParkNameAttribute: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.URLElement.ParkNameAttribute,
+			},
 		}
 		parkCollector = scrapers.NewStaticHTMLParkCollector(staticSelectors)
 	default:
 		log.Fatalf("Unknown homepage strategy: %s", config.Scrapers.Illinois.Pages.Homepage.Strategy)
 	}
 
-	// Create Illinois park scraper with full config
-	ilConfig := scrapers.ScraperConfig{
-		BaseURL:       config.Scrapers.Illinois.BaseURL,
-		StateCode:     config.Scrapers.Illinois.StateCode,
-		ParkCollector: parkCollector,
-		ParkPageSelectors: scrapers.ParkPageSelectors{
-			NameSelector:      config.Scrapers.Illinois.Pages.ParkPage.Selectors.NameSelector,
-			LatitudeSelector:  config.Scrapers.Illinois.Pages.ParkPage.Selectors.LatitudeSelector,
-			LongitudeSelector: config.Scrapers.Illinois.Pages.ParkPage.Selectors.LongitudeSelector,
-		},
-		ActivityScraper: activityScraper,
-	}
+	// TEST: Just collect park URLs from homepage
+	fmt.Println("\n=== Testing Homepage Collector ===")
+	fmt.Printf("Strategy: %s\n", config.Scrapers.Indiana.Pages.Homepage.Strategy)
+	fmt.Printf("Base URL: %s\n\n", config.Scrapers.Indiana.BaseURL)
 
-	scraper := scrapers.NewILParkScraper(ilConfig)
-
-	// Scrape all parks
-	parks, err := scraper.ScrapeAll()
+	parkURLs, err := parkCollector.CollectParkURLs(config.Scrapers.Indiana.BaseURL)
 	if err != nil {
-		log.Fatalf("Failed to scrape parks: %v", err)
+		log.Fatalf("Failed to collect park URLs: %v", err)
 	}
 
-	// Save parks to JSON file
-	err = saveParksToJSON(parks, "parks.json")
-	if err != nil {
-		log.Fatalf("Failed to save parks to JSON: %v", err)
+	fmt.Printf("\n=== Results ===\n")
+	fmt.Printf("Collected %d park URLs:\n\n", len(parkURLs))
+	for i, url := range parkURLs {
+		fmt.Printf("%3d. %s\n", i+1, url)
 	}
-
-	fmt.Println("[Final] Parks data saved to parks.json")
 }
 
 // saveParksToJSON saves a slice of parks to a JSON file

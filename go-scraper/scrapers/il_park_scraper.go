@@ -43,8 +43,21 @@ type JSONAPISelectors struct {
 
 // StaticHTMLSelectors for parsing static HTML park lists
 type StaticHTMLSelectors struct {
-	ParkLinksSelector string
-	ParkNameAttribute string
+	Section    HTMLSection // Parent section containing park links
+	URLElement URLElement  // URL element configuration
+}
+
+// HTMLSection identifies the parent container for park links
+type HTMLSection struct {
+	ID       string // HTML id attribute
+	Class    string // HTML class attribute
+	Selector string // CSS selector (most flexible option)
+}
+
+// URLElement configures how to identify and extract park URLs
+type URLElement struct {
+	HrefPattern       string // Pattern to match href (e.g., "/dnr/state-parks/parks-lakes/*")
+	ParkNameAttribute string // Attribute to get park name (e.g., "text", "title", "aria-label")
 }
 
 // ILParkScraper scrapes parks from the Illinois DNR website
