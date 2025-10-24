@@ -3,20 +3,50 @@
     "illinois": {
       "baseURL": "https://dnr.illinois.gov/parks/allparks.html",
       "stateCode": "IL",
-      "selectors": {
+      "pages": {
         "homepage": {
-          "apiURLAttribute": "[data-api-url]"
-        },
-        "jsonAPI": {
-          "parksListPath": "listItems",
-          "parkNamePath": "parkName",
-          "parkURLPath": "meta.dynamicPageLink"
+          "strategy": "json_api",
+          "selectors": {
+            "apiURLAttribute": "[data-api-url]",
+            "jsonAPI": {
+              "parksListPath": "listItems",
+              "parkNamePath": "parkName",
+              "parkURLPath": "meta.dynamicPageLink"
+            }
+          }
         },
         "parkPage": {
-          "nameSelector": "h1",
-          "latitudeSelector": "div.cmp-contentfragment__element--parkLatitude p.cmp-contentfragment__element-value",
-          "longitudeSelector": "div.cmp-contentfragment__element--parkLongitude p.cmp-contentfragment__element-value",
-          "activitiesSelector": "ul.cmp-contentfragment__element-linkList li a"
+          "strategy": "static_html",
+          "selectors": {
+            "nameSelector": "h1",
+            "latitudeSelector": "div.cmp-contentfragment__element--parkLatitude p.cmp-contentfragment__element-value",
+            "longitudeSelector": "div.cmp-contentfragment__element--parkLongitude p.cmp-contentfragment__element-value",
+            "activitiesSelector": "ul.cmp-contentfragment__element-linkList li a"
+          }
+        }
+      }
+    },
+    "indiana": {
+      "baseURL": "https://www.in.gov/dnr/state-parks/parks-lakes/",
+      "stateCode": "IN",
+      "pages": {
+        "homepage": {
+          "strategy": "static_html",
+          "selectors": {
+            "staticHTML": {
+              "parkLinksSelector": ".park-list a.park-link",
+              "parkNameAttribute": "text"
+            }
+          }
+        },
+        "parkPage": {
+          "strategy": "static_html",
+          "selectors": {
+            "nameSelector": "h1.park-title",
+            "latitudeSelector": ".location-lat",
+            "longitudeSelector": ".location-lng",
+            "activitiesSelector": ".activities-list li a"
+          }
         }
       }
     }
