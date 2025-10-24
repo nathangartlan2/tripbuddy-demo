@@ -1,0 +1,24 @@
+{
+  "scrapers": {
+    "illinois": {
+      "baseURL": "https://dnr.illinois.gov/parks/allparks.html",
+      "stateCode": "IL",
+      "selectors": {
+        "homepage": {
+          "apiURLAttribute": "[data-api-url]"
+        },
+        "jsonAPI": {
+          "parksListPath": "listItems",
+          "parkNamePath": "parkName",
+          "parkURLPath": "meta.dynamicPageLink"
+        },
+        "parkPage": {
+          "nameSelector": "h1",
+          "latitudeSelector": "div.cmp-contentfragment__element--parkLatitude p.cmp-contentfragment__element-value",
+          "longitudeSelector": "div.cmp-contentfragment__element--parkLongitude p.cmp-contentfragment__element-value",
+          "activitiesSelector": "ul.cmp-contentfragment__element-linkList li a"
+        }
+      }
+    }
+  }
+}
