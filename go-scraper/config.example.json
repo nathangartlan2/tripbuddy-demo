@@ -34,8 +34,13 @@
           "strategy": "static_html",
           "selectors": {
             "staticHTML": {
-              "parkLinksSelector": ".park-list a.park-link",
-              "parkNameAttribute": "text"
+              "section": {
+                "id": "12345"
+              },
+              "urlElement": {
+                "hrefPattern": "/dnr/state-parks/parks-lakes/*",
+                "parkNameAttribute": "text"
+              }
             }
           }
         },
