@@ -22,24 +22,34 @@ func main() {
 	}
 	activityScraper := scrapers.NewILParkActivityScraper(activityScraperConfig)
 
+	// Create park collector based on homepage strategy
+	var parkCollector scrapers.ParkCollectorScraper
+	switch config.Scrapers.Illinois.Pages.Homepage.Strategy {
+	case "json_api":
+		jsonSelectors := scrapers.JSONAPISelectors{
+			ParksListPath: config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParksListPath,
+			ParkNamePath:  config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParkNamePath,
+			ParkURLPath:   config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParkURLPath,
+		}
+		parkCollector = scrapers.NewJSONAPIParkCollector(
+			config.Scrapers.Illinois.Pages.Homepage.Selectors.APIURLAttribute,
+			jsonSelectors,
+		)
+	case "static_html":
+		staticSelectors := scrapers.StaticHTMLSelectors{
+			ParkLinksSelector: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.ParkLinksSelector,
+			ParkNameAttribute: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.ParkNameAttribute,
+		}
+		parkCollector = scrapers.NewStaticHTMLParkCollector(staticSelectors)
+	default:
+		log.Fatalf("Unknown homepage strategy: %s", config.Scrapers.Illinois.Pages.Homepage.Strategy)
+	}
+
 	// Create Illinois park scraper with full config
 	ilConfig := scrapers.ScraperConfig{
-		BaseURL:          config.Scrapers.Illinois.BaseURL,
-		StateCode:        config.Scrapers.Illinois.StateCode,
-		HomepageStrategy: config.Scrapers.Illinois.Pages.Homepage.Strategy,
-		HomepageSelectors: scrapers.HomepageSelectors{
-			APIURLAttribute: config.Scrapers.Illinois.Pages.Homepage.Selectors.APIURLAttribute,
-			JSONAPI: scrapers.JSONAPISelectors{
-				ParksListPath: config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParksListPath,
-				ParkNamePath:  config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParkNamePath,
-				ParkURLPath:   config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParkURLPath,
-			},
-			StaticHTML: scrapers.StaticHTMLSelectors{
-				ParkLinksSelector: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.ParkLinksSelector,
-				ParkNameAttribute: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.ParkNameAttribute,
-			},
-		},
-		ParkPageStrategy: config.Scrapers.Illinois.Pages.ParkPage.Strategy,
+		BaseURL:       config.Scrapers.Illinois.BaseURL,
+		StateCode:     config.Scrapers.Illinois.StateCode,
+		ParkCollector: parkCollector,
 		ParkPageSelectors: scrapers.ParkPageSelectors{
 			NameSelector:      config.Scrapers.Illinois.Pages.ParkPage.Selectors.NameSelector,
 			LatitudeSelector:  config.Scrapers.Illinois.Pages.ParkPage.Selectors.LatitudeSelector,
