@@ -12,4 +12,6 @@ public interface IParksRepository
     Task<IResult> GetParkAsync(string id);
 
     Task<IResult> CreateParkAsync(Park park);
+
+    Task<IResult> SearchGeographic(double latitude, double longitude, string activity, double radiusKm);
 }

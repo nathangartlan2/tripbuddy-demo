@@ -76,4 +76,14 @@ public class FileParkRepository : IParksRepository
         // Return all parks
         return Task.FromResult(Results.Ok(Parks.Values));
     }
+
+    public Task<IResult> SearchGeographic(double latitude, double longitude, string activity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IResult> SearchGeographic(double latitude, double longitude, string activity, double radiusKm)
+    {
+        throw new NotImplementedException();
+    }
 }
