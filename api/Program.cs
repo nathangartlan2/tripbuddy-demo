@@ -1,12 +1,15 @@
 using api.Models;
 using api.Repositories;
+using Microsoft.AspNetCore.StaticAssets;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-IParksRepository parkRepo = new FileParkRepository();
+string postGresConnection = @"Host=localhost;Port=5432;Database=tripbuddy;Username=tripbuddy_user;Password=tripbuddy_pass";
 
-app.MapGet("/", () => "Hello World!");
+IParksRepository parkRepo = new PostGresParksRepository(postGresConnection);
+
+app.MapGet("/", () => "TripBuddy API up and running");
 
 app.MapGet("/parks", async () => await parkRepo.GetParksAsync());
 
