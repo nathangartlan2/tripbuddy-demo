@@ -17,49 +17,6 @@ type ScraperConfig struct {
 	ActivityScraper   ParkActivityScraper
 }
 
-// ParkPageSelectors for extracting park details
-type ParkPageSelectors struct {
-	NameSelector      string
-	LatitudeSelector  string
-	LongitudeSelector string
-}
-
-// HomepageSelectors holds selectors for discovering parks on homepage
-type HomepageSelectors struct {
-	// For JSON API strategy
-	APIURLAttribute string
-	JSONAPI         JSONAPISelectors
-
-	// For Static HTML strategy
-	StaticHTML StaticHTMLSelectors
-}
-
-// JSONAPISelectors for parsing JSON responses
-type JSONAPISelectors struct {
-	ParksListPath string
-	ParkNamePath  string
-	ParkURLPath   string
-}
-
-// StaticHTMLSelectors for parsing static HTML park lists
-type StaticHTMLSelectors struct {
-	Section    HTMLSection // Parent section containing park links
-	URLElement URLElement  // URL element configuration
-}
-
-// HTMLSection identifies the parent container for park links
-type HTMLSection struct {
-	ID       string // HTML id attribute
-	Class    string // HTML class attribute
-	Selector string // CSS selector (most flexible option)
-}
-
-// URLElement configures how to identify and extract park URLs
-type URLElement struct {
-	HrefPattern       string // Pattern to match href (e.g., "/dnr/state-parks/parks-lakes/*")
-	ParkNameAttribute string // Attribute to get park name (e.g., "text", "title", "aria-label")
-}
-
 // ILParkScraper scrapes parks from the Illinois DNR website
 type ILParkScraper struct {
 	config ScraperConfig

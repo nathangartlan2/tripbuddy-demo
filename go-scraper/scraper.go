@@ -16,52 +16,71 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Create park collector based on homepage strategy
-	var parkCollector scrapers.ParkCollectorScraper
-	switch config.Scrapers.Indiana.Pages.Homepage.Strategy {
-	case "json_api":
-		jsonSelectors := scrapers.JSONAPISelectors{
-			ParksListPath: config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParksListPath,
-			ParkNamePath:  config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParkNamePath,
-			ParkURLPath:   config.Scrapers.Illinois.Pages.Homepage.Selectors.JSONAPI.ParkURLPath,
-		}
-		parkCollector = scrapers.NewJSONAPIParkCollector(
-			config.Scrapers.Illinois.Pages.Homepage.Selectors.APIURLAttribute,
-			jsonSelectors,
-		)
-	case "static_html":
-		// Convert config types to scraper types
-		staticSelectors := scrapers.StaticHTMLSelectors{
-			Section: scrapers.HTMLSection{
-				ID:       config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.Section.ID,
-				Class:    config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.Section.Class,
-				Selector: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.Section.Selector,
+	// Convert main config format to scrapers.StateConfig format
+	scraperConfigs := make(map[string]scrapers.StateConfig)
+	for stateCode, stateConfig := range config.Scrapers {
+		scraperConfigs[stateCode] = scrapers.StateConfig{
+			BaseURL:   stateConfig.BaseURL,
+			StateCode: stateConfig.StateCode,
+			Homepage: scrapers.HomepageConfig{
+				Strategy:  stateConfig.Pages.Homepage.Strategy,
+				Selectors: stateConfig.Pages.Homepage.Selectors,
 			},
-			URLElement: scrapers.URLElement{
-				HrefPattern:       config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.URLElement.HrefPattern,
-				ParkNameAttribute: config.Scrapers.Illinois.Pages.Homepage.Selectors.StaticHTML.URLElement.ParkNameAttribute,
+			ParkPage: scrapers.ParkPageConfig{
+				Strategy:  stateConfig.Pages.ParkPage.Strategy,
+				Selectors: stateConfig.Pages.ParkPage.Selectors,
 			},
 		}
-		parkCollector = scrapers.NewStaticHTMLParkCollector(staticSelectors)
-	default:
-		log.Fatalf("Unknown homepage strategy: %s", config.Scrapers.Illinois.Pages.Homepage.Strategy)
 	}
 
-	// TEST: Just collect park URLs from homepage
-	fmt.Println("\n=== Testing Homepage Collector ===")
-	fmt.Printf("Strategy: %s\n", config.Scrapers.Indiana.Pages.Homepage.Strategy)
-	fmt.Printf("Base URL: %s\n\n", config.Scrapers.Indiana.BaseURL)
+	// Create multi-state scraper
+	multiScraper := scrapers.NewMultiStateScraper(scraperConfigs)
 
-	parkURLs, err := parkCollector.CollectParkURLs(config.Scrapers.Indiana.BaseURL)
+	// Configure which states to scrape
+	// Options:
+	//   1. Specify states: statesToScrape := []string{"IL", "IN"}
+	//   2. Scrape all: statesToScrape := []string{} or nil
+	statesToScrape := []string{"IL", "IN"} // Change this as needed
+
+	// Choose execution mode
+	concurrent := false // Set to true for parallel scraping
+
+	fmt.Println("\n=== Multi-State Park Scraper ===")
+	fmt.Printf("States to scrape: %v\n", statesToScrape)
+	fmt.Printf("Execution mode: ")
+	if concurrent {
+		fmt.Println("Concurrent (parallel)")
+	} else {
+		fmt.Println("Sequential")
+	}
+	fmt.Println()
+
+	// Scrape parks
+	parks, err := multiScraper.ScrapeStates(statesToScrape, concurrent)
 	if err != nil {
-		log.Fatalf("Failed to collect park URLs: %v", err)
+		log.Fatalf("Failed to scrape parks: %v", err)
 	}
 
+	// Display results
 	fmt.Printf("\n=== Results ===\n")
-	fmt.Printf("Collected %d park URLs:\n\n", len(parkURLs))
-	for i, url := range parkURLs {
-		fmt.Printf("%3d. %s\n", i+1, url)
+	fmt.Printf("Total parks scraped: %d\n\n", len(parks))
+
+	// Group by state for display
+	parksByState := make(map[string][]scrapers.Park)
+	for _, park := range parks {
+		parksByState[park.StateCode] = append(parksByState[park.StateCode], park)
 	}
+
+	for state, statePark := range parksByState {
+		fmt.Printf("%s: %d parks\n", state, len(statePark))
+	}
+
+	// Save to JSON
+	err = saveParksToJSON(parks, "parks.json")
+	if err != nil {
+		log.Fatalf("Failed to save parks to JSON: %v", err)
+	}
+	fmt.Printf("\n✓ Saved results to parks.json\n")
 }
 
 // saveParksToJSON saves a slice of parks to a JSON file
