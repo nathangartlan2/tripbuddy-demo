@@ -1,6 +1,16 @@
 using System.Text.Json.Serialization;
 namespace api.Models;
 
+
+public class Activity
+{
+    [JsonPropertyName("Name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; }
+}
+
 public class Park
 {
     [JsonPropertyName("name")]
@@ -17,4 +27,7 @@ public class Park
 
     [JsonPropertyName("longitude")]
     public float Longitude { get; set; }
+
+    [JsonPropertyName("activities")]
+    public Activity[] Activities { get; set; }
 }
