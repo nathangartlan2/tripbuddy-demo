@@ -6,7 +6,11 @@ using Microsoft.AspNetCore.StaticAssets;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-string postGresConnection = @"Host=localhost;Port=5432;Database=tripbuddy;Username=tripbuddy_user;Password=tripbuddy_pass";
+// Get connection string from configuration (environment variable or appsettings.json)
+// In Docker: uses ConnectionStrings__PostgreSQL environment variable
+// Locally: falls back to default localhost connection
+string postGresConnection = builder.Configuration.GetConnectionString("PostgreSQL")
+    ?? @"Host=localhost;Port=5432;Database=tripbuddy;Username=tripbuddy_user;Password=tripbuddy_pass";
 
 IParksRepository parkRepo = new PostGresParksRepository(postGresConnection);
 
