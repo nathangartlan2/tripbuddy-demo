@@ -51,15 +51,16 @@ public class PostGresParksRepository : IParksRepository
 
     }
 
-    public async Task<IResult> GetParkAsync(string id)
+    public async Task<IResult> GetParkAsync(string parkCode)
     {
         Park park;
         await using var conn = new NpgsqlConnection(_connectionString);
         await conn.OpenAsync();
 
-        var sql = @"SELECT
+        var sql = @$"SELECT
 		p.id,
 		p.name, 
+        p.park_code,
 		p.state_code, 
 		p.latitude, 
 		p.longitude,
@@ -71,8 +72,8 @@ public class PostGresParksRepository : IParksRepository
 					) as activities
 		FROM parks p
 		LEFT JOIN activities a ON p.id = a.park_id
-		WHERE p.id = 1
-		GROUP BY p.id, p.name, p.state_code, p.latitude, p.longitude;";
+		WHERE p.park_code = '{parkCode}'
+		GROUP BY p.id, p.name, p.park_code, p.state_code, p.latitude, p.longitude;";
 
         await using var cmd = new NpgsqlCommand(sql, conn);
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -83,10 +84,11 @@ public class PostGresParksRepository : IParksRepository
             {
                 Id = reader.GetInt32(0).ToString(),
                 Name = reader.GetString(1),
-                StateCode = reader.GetString(2),
-                Latitude = reader.GetFloat(3),
-                Longitude = reader.GetFloat(4),
-                Activities = System.Text.Json.JsonSerializer.Deserialize<Activity[]>(reader.GetString(5)) ??
+                ParkCode = reader.GetString(2),
+                StateCode = reader.GetString(3),
+                Latitude = reader.GetFloat(4),
+                Longitude = reader.GetFloat(5),
+                Activities = System.Text.Json.JsonSerializer.Deserialize<Activity[]>(reader.GetString(6)) ??
                  Array.Empty<Activity>()
             };
 
@@ -109,6 +111,7 @@ public class PostGresParksRepository : IParksRepository
           SELECT 
               p.id, 
               p.name, 
+              p.park_code,
               p.state_code, 
               p.latitude, 
               p.longitude,
@@ -120,7 +123,7 @@ public class PostGresParksRepository : IParksRepository
               ) as activities
           FROM parks p
           LEFT JOIN activities a ON p.id = a.park_id
-          GROUP BY p.id, p.name, p.state_code, p.latitude, p.longitude";
+          GROUP BY p.id, p.name, p.park_code, p.state_code, p.latitude, p.longitude";
 
         await using var cmd = new NpgsqlCommand(sql, conn);
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -131,10 +134,11 @@ public class PostGresParksRepository : IParksRepository
             {
                 Id = reader.GetInt32(0).ToString(),
                 Name = reader.GetString(1),
-                StateCode = reader.GetString(2),
-                Latitude = reader.GetFloat(3),
-                Longitude = reader.GetFloat(4),
-                Activities = System.Text.Json.JsonSerializer.Deserialize<Activity[]>(reader.GetString(5)) ??
+                ParkCode = reader.GetString(2),
+                StateCode = reader.GetString(3),
+                Latitude = reader.GetFloat(4),
+                Longitude = reader.GetFloat(5),
+                Activities = System.Text.Json.JsonSerializer.Deserialize<Activity[]>(reader.GetString(6)) ??
     Array.Empty<Activity>()
             });
         }
@@ -154,6 +158,7 @@ public class PostGresParksRepository : IParksRepository
         var sql = @$"SELECT
             p.id,
             p.name, 
+            p.park_code,
             p.state_code, 
             p.latitude, 
             p.longitude,
@@ -169,7 +174,7 @@ public class PostGresParksRepository : IParksRepository
             WHERE
             to_tsvector('english', a.name) @@ to_tsquery('english', '{activity}')
             AND ST_DWithin(location, ST_MakePoint({longitude}, {latitude})::geography, {radiusKm * 1000})
-            GROUP BY p.id, p.name, p.state_code, p.latitude, p.longitude, distance_km
+            GROUP BY p.id, p.name,  p.park_code, p.state_code, p.latitude, p.longitude, distance_km
             ORDER BY distance_km;";
 
         await using var cmd = new NpgsqlCommand(sql, conn);
@@ -181,10 +186,11 @@ public class PostGresParksRepository : IParksRepository
             {
                 Id = reader.GetInt32(0).ToString(),
                 Name = reader.GetString(1),
-                StateCode = reader.GetString(2),
-                Latitude = reader.GetFloat(3),
-                Longitude = reader.GetFloat(4),
-                Activities = System.Text.Json.JsonSerializer.Deserialize<Activity[]>(reader.GetString(5)) ??
+                ParkCode = reader.GetString(2),
+                StateCode = reader.GetString(3),
+                Latitude = reader.GetFloat(4),
+                Longitude = reader.GetFloat(5),
+                Activities = System.Text.Json.JsonSerializer.Deserialize<Activity[]>(reader.GetString(6)) ??
     Array.Empty<Activity>()
             });
         }

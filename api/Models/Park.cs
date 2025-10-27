@@ -13,11 +13,18 @@ public class Activity
 
 public class Park
 {
+
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
+
     [JsonPropertyName("name")]
     public string Name { get; set; }
 
-    [JsonPropertyName("Id")]
-    public string Id { get; set; } = "";
+    [JsonPropertyName("park_code")]
+    public string ParkCode { get; set; }
+
+    [JsonPropertyName("park_url")]
+    public string ParkURL { get; set; } = "";
 
     [JsonPropertyName("stateCode")]
     public string StateCode { get; set; }
