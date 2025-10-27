@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using System.Text.RegularExpressions;
 using api.Models;
 using Npgsql;
 
@@ -13,6 +15,36 @@ public class PostGresParksRepository : IParksRepository
         _connectionString = connectionString;
     }
 
+
+    private string ToUrlFriendly(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+
+        // Convert to lowercase and replace spaces with hyphens
+        var result = input.ToLowerInvariant().Trim();
+        result = Regex.Replace(result, @"\s+", "-");
+
+        // Remove all characters except alphanumeric, hyphens, and underscores
+        result = Regex.Replace(result, @"[^a-z0-9\-_]", "");
+
+        // Replace multiple consecutive hyphens with a single hyphen
+        result = Regex.Replace(result, @"-+", "-");
+
+        // Remove leading/trailing hyphens
+        result = result.Trim('-');
+
+        return result;
+    }
+    private string buildNaturalKey(Park park)
+    {
+        StringBuilder sb = new();
+        sb.Append(ToUrlFriendly(park.Name));
+        sb.Append("-");
+        sb.Append(ToUrlFriendly(park.StateCode));
+        return sb.ToString();
+
+    }
     public async Task<IResult> CreateParkAsync(Park park)
     {
         throw new NotImplementedException();

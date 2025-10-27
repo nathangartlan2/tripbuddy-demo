@@ -1,8 +1,9 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
     image: postgis/postgis:16-3.4
+    platform: linux/amd64
     container_name: tripbuddy-postgres
     environment:
       POSTGRES_DB: tripbuddy

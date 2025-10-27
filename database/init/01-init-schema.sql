@@ -8,6 +8,8 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE TABLE parks (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    park_code VARCHAR(255) UNIQUE NOT NULL,
+    park_url VARCHAR(500),
     state_code VARCHAR(2) NOT NULL,
     latitude DECIMAL(10, 6) NOT NULL,
     longitude DECIMAL(11, 6) NOT NULL,
@@ -33,6 +35,10 @@ CREATE INDEX idx_parks_location ON parks USING GIST(location);
 
 -- Index for filtering by state
 CREATE INDEX idx_parks_state ON parks(state_code);
+
+-- Index for park_code lookups (unique constraint already creates an index, but explicit for clarity)
+-- Note: UNIQUE constraint automatically creates an index, so this is optional
+-- CREATE INDEX idx_parks_code ON parks(park_code);
 
 -- Full-text search index on park names
 CREATE INDEX idx_parks_name_fts ON parks USING GIN(to_tsvector('english', name));
@@ -79,6 +85,8 @@ CREATE VIEW parks_with_activity_count AS
 SELECT
     p.id,
     p.name,
+    p.park_code,
+    p.park_url,
     p.state_code,
     p.latitude,
     p.longitude,
@@ -88,7 +96,7 @@ SELECT
     p.updated_at
 FROM parks p
 LEFT JOIN activities a ON p.id = a.park_id
-GROUP BY p.id, p.name, p.state_code, p.latitude, p.longitude, p.location, p.created_at, p.updated_at;
+GROUP BY p.id, p.name, p.park_code, p.park_url, p.state_code, p.latitude, p.longitude, p.location, p.created_at, p.updated_at;
 
 -- Grant permissions (if needed for specific user)
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO tripbuddy_user;
