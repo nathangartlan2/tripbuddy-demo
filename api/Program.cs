@@ -22,6 +22,8 @@ app.MapGet("/park/{id}", async (string id) => await parkRepo.GetParkAsync(id));
 
 app.MapPost("/park", async ([FromBody] Park park) => await parkRepo.CreateParkAsync(park));
 
+app.MapDelete("/park/{id}", async (string id) => await parkRepo.DeleteParkAsync(id));
+
 app.MapGet("/park/search", async (
       [FromQuery] double? latitude, [FromQuery] double? longitude,
       [FromQuery] string activity,

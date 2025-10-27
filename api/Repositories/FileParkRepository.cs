@@ -86,4 +86,9 @@ public class FileParkRepository : IParksRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<IResult> DeleteParkAsync(string parkCode)
+    {
+        throw new NotImplementedException();
+    }
 }

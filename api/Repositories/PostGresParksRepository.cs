@@ -177,6 +177,26 @@ public class PostGresParksRepository : IParksRepository
         return Results.Ok(parks);
     }
 
+    public async Task<IResult> DeleteParkAsync(string parkCode)
+    {
+        var sql = "DELETE FROM parks WHERE park_code = @parkCode RETURNING id";
+
+        await using var conn = new NpgsqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        await using var cmd = new NpgsqlCommand(sql, conn);
+        cmd.Parameters.AddWithValue("parkCode", parkCode);
+
+        var deletedId = await cmd.ExecuteScalarAsync();
+
+        if (deletedId == null)
+        {
+            return Results.NotFound($"Park with code '{parkCode}' not found");
+        }
+
+        return Results.NoContent();
+    }
+
     public async Task<IResult> SearchGeographic(double latitude, double longitude, string activity, double radiusKm)
     {
 
@@ -187,10 +207,10 @@ public class PostGresParksRepository : IParksRepository
 
         var sql = @$"SELECT
             p.id,
-            p.name, 
+            p.name,
             p.park_code,
-            p.state_code, 
-            p.latitude, 
+            p.state_code,
+            p.latitude,
             p.longitude,
             COALESCE(
                             json_agg(
