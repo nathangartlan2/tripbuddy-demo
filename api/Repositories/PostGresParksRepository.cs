@@ -47,7 +47,37 @@ public class PostGresParksRepository : IParksRepository
     }
     public async Task<IResult> CreateParkAsync(Park park)
     {
-        throw new NotImplementedException();
+
+        string parkCode = buildNaturalKey(park);
+
+        StringBuilder query = new();
+        query.Append("BEGIN;");
+
+        query.Append(@$"INSERT INTO parks (name, park_code, park_url, state_code, latitude, longitude) VALUES ('{park.Name}', '{parkCode}', NULL, '{park.StateCode}', {park.Latitude}, {park.Longitude});");
+
+        foreach (Activity activity in park.Activities)
+        {
+            query.Append(@$"INSERT INTO activities (park_id, name, description) VALUES (currval('parks_id_seq'), '{activity.Name}', '{activity.Description}');");
+        }
+
+        query.Append("COMMIT;");
+
+        string sql = query.ToString();
+
+        await using var conn = new NpgsqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        await using var cmd = new NpgsqlCommand(sql, conn);
+
+        var newId = await cmd.ExecuteScalarAsync(); // Returns the ID
+
+        if (newId == null)
+        {
+            return Results.Conflict("Failed to insert record - no ID returned");
+        }
+
+        return Results.Created<Park>(@$"/parks/{parkCode}", park);
+
 
     }
 

@@ -14,11 +14,13 @@ string postGresConnection = builder.Configuration.GetConnectionString("PostgreSQ
 
 IParksRepository parkRepo = new PostGresParksRepository(postGresConnection);
 
-app.MapGet("/", () => "TripBuddy API up and running");
+app.MapGet(pattern: "/", () => "TripBuddy API up and running");
 
 app.MapGet("/parks", async () => await parkRepo.GetParksAsync());
 
 app.MapGet("/park/{id}", async (string id) => await parkRepo.GetParkAsync(id));
+
+app.MapPost("/park", async ([FromBody] Park park) => await parkRepo.CreateParkAsync(park));
 
 app.MapGet("/park/search", async (
       [FromQuery] double? latitude, [FromQuery] double? longitude,
