@@ -2,8 +2,14 @@
 
 ```mermaid
 flowchart TD
-      Homepage["Homepage URL
-      Strategy: JSON API / Static HTML
-      Uses: Selectors Config"] -->|collect| Parks[Park URLs]
-      Parks -->|scrape| Info[Park Info + Activities]
+      Homepage["**Homepage URL**
+      IL: dnr.illinois.gov/parks/allparks.html
+      IN: in.gov/dnr/state-parks/parks-lakes
+      Etc"] -->|collect| Parks["**Park URLs**
+      parks/park.bigriver.html
+      parks/park.clintonlake.html
+      Etc
+      "]
+      Parks -->|scrape| Info[**Park Info + Activities**]
+
 ```
