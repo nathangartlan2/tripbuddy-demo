@@ -74,10 +74,6 @@ func loadConfig(filename string) (*Config, error) {
 		config.LogLevel = "info"
 	}
 
-	// Default to 2 seconds if not specified
-	if config.RequestDelay == 0 {
-		config.RequestDelay = 2
-	}
 
 	for _, scraperConfig := range jsonConfig.Scrapers {
 		if scraperConfig.StateCode == "" {

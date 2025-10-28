@@ -10,6 +10,36 @@ import (
 	"github.com/gocolly/colly"
 )
 
+// PerformanceMetrics tracks detailed performance data for scraping operations
+type PerformanceMetrics struct {
+	TotalDuration     time.Duration
+	StatesScraped     int
+	ParksCollected    int
+	AvgTimePerState   time.Duration
+	StateTimings      map[string]time.Duration // Per-state timing
+	Concurrent        bool
+	StartTime         time.Time
+	EndTime           time.Time
+}
+
+// NewPerformanceMetrics creates a new metrics tracker
+func NewPerformanceMetrics(concurrent bool) *PerformanceMetrics {
+	return &PerformanceMetrics{
+		StateTimings: make(map[string]time.Duration),
+		Concurrent:   concurrent,
+		StartTime:    time.Now(),
+	}
+}
+
+// Finalize completes the metrics calculation
+func (pm *PerformanceMetrics) Finalize() {
+	pm.EndTime = time.Now()
+	pm.TotalDuration = pm.EndTime.Sub(pm.StartTime)
+	if pm.StatesScraped > 0 {
+		pm.AvgTimePerState = pm.TotalDuration / time.Duration(pm.StatesScraped)
+	}
+}
+
 // StateConfig holds the configuration for a single state scraper
 type StateConfig struct {
 	BaseURL   string
@@ -49,7 +79,10 @@ func NewMultiStateScraper(configs map[string]StateConfig, logger *slog.Logger, r
 // ScrapeStates scrapes parks from the specified states
 // If stateCodes is empty, scrapes all configured states
 // If concurrent is true, scrapes states in parallel
-func (m *MultiStateScraper) ScrapeStates(stateCodes []string, concurrent bool) ([]Park, error) {
+// Returns parks and performance metrics
+func (m *MultiStateScraper) ScrapeStates(stateCodes []string, concurrent bool) ([]Park, *PerformanceMetrics, error) {
+	metrics := NewPerformanceMetrics(concurrent)
+
 	// If no state codes specified, scrape all
 	if len(stateCodes) == 0 {
 		stateCodes = make([]string, 0, len(m.configs))
@@ -61,21 +94,32 @@ func (m *MultiStateScraper) ScrapeStates(stateCodes []string, concurrent bool) (
 	// Validate that all requested states exist in config
 	for _, code := range stateCodes {
 		if _, exists := m.configs[code]; !exists {
-			return nil, fmt.Errorf("no configuration found for state: %s", code)
+			return nil, metrics, fmt.Errorf("no configuration found for state: %s", code)
 		}
 	}
 
+	var parks []Park
+	var err error
+
 	if concurrent {
-		return m.scrapeConcurrent(stateCodes)
+		parks, err = m.scrapeConcurrent(stateCodes, metrics)
+	} else {
+		parks, err = m.scrapeSequential(stateCodes, metrics)
 	}
-	return m.scrapeSequential(stateCodes)
+
+	metrics.StatesScraped = len(stateCodes)
+	metrics.ParksCollected = len(parks)
+	metrics.Finalize()
+
+	return parks, metrics, err
 }
 
 // scrapeSequential scrapes states one at a time
-func (m *MultiStateScraper) scrapeSequential(stateCodes []string) ([]Park, error) {
+func (m *MultiStateScraper) scrapeSequential(stateCodes []string, metrics *PerformanceMetrics) ([]Park, error) {
 	var allParks []Park
 
 	for _, stateCode := range stateCodes {
+		stateStart := time.Now()
 		m.logger.Info("Starting sequential scrape", "state", stateCode)
 
 		parks, err := m.scrapeState(stateCode)
@@ -83,7 +127,13 @@ func (m *MultiStateScraper) scrapeSequential(stateCodes []string) ([]Park, error
 			return nil, fmt.Errorf("failed to scrape %s: %w", stateCode, err)
 		}
 
-		m.logger.Info("Completed scraping state", "state", stateCode, "parks_count", len(parks))
+		stateDuration := time.Since(stateStart)
+		metrics.StateTimings[stateCode] = stateDuration
+
+		m.logger.Info("Completed scraping state",
+			"state", stateCode,
+			"parks_count", len(parks),
+			"duration", stateDuration)
 		allParks = append(allParks, parks...)
 	}
 
@@ -91,7 +141,7 @@ func (m *MultiStateScraper) scrapeSequential(stateCodes []string) ([]Park, error
 }
 
 // scrapeConcurrent scrapes states in parallel using goroutines
-func (m *MultiStateScraper) scrapeConcurrent(stateCodes []string) ([]Park, error) {
+func (m *MultiStateScraper) scrapeConcurrent(stateCodes []string, metrics *PerformanceMetrics) ([]Park, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
@@ -104,6 +154,7 @@ func (m *MultiStateScraper) scrapeConcurrent(stateCodes []string) ([]Park, error
 		go func(code string) {
 			defer wg.Done()
 
+			stateStart := time.Now()
 			m.logger.Info("Starting concurrent scrape", "state", code)
 
 			parks, err := m.scrapeState(code)
@@ -111,11 +162,17 @@ func (m *MultiStateScraper) scrapeConcurrent(stateCodes []string) ([]Park, error
 			mu.Lock()
 			defer mu.Unlock()
 
+			stateDuration := time.Since(stateStart)
+			metrics.StateTimings[code] = stateDuration
+
 			if err != nil {
-				m.logger.Error("Failed to scrape state", "state", code, "error", err)
+				m.logger.Error("Failed to scrape state", "state", code, "error", err, "duration", stateDuration)
 				errors = append(errors, fmt.Errorf("failed to scrape %s: %w", code, err))
 			} else {
-				m.logger.Info("Completed scraping state", "state", code, "parks_count", len(parks))
+				m.logger.Info("Completed scraping state",
+					"state", code,
+					"parks_count", len(parks),
+					"duration", stateDuration)
 				allParks = append(allParks, parks...)
 			}
 		}(stateCode)

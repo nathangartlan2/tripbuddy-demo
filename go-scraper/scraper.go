@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 
 	"scraper/scrapers"
 )
@@ -77,8 +78,8 @@ func main() {
 		"states", statesToScrape,
 		"concurrent", *concurrent)
 
-	// Scrape parks
-	parks, err := multiScraper.ScrapeStates(statesToScrape, *concurrent)
+	// Scrape parks and collect performance metrics
+	parks, metrics, err := multiScraper.ScrapeStates(statesToScrape, *concurrent)
 	if err != nil {
 		logger.Error("Failed to scrape parks", "error", err)
 		log.Fatalf("Failed to scrape parks: %v", err)
@@ -98,9 +99,34 @@ func main() {
 		fmt.Printf("%s: %d parks\n", state, len(statePark))
 	}
 
+	// Display performance metrics
+	fmt.Printf("\n=== Performance Metrics ===\n")
+	fmt.Printf("Execution mode: %s\n", getExecutionMode(metrics.Concurrent))
+	fmt.Printf("Total duration: %v\n", metrics.TotalDuration)
+	fmt.Printf("States scraped: %d\n", metrics.StatesScraped)
+	fmt.Printf("Parks collected: %d\n", metrics.ParksCollected)
+	if metrics.StatesScraped > 0 {
+		fmt.Printf("Average time per state: %v\n", metrics.AvgTimePerState)
+	}
+	if metrics.ParksCollected > 0 {
+		avgTimePerPark := metrics.TotalDuration / time.Duration(metrics.ParksCollected)
+		fmt.Printf("Average time per park: %v\n", avgTimePerPark)
+	}
+
+	// Show per-state timings
+	if len(metrics.StateTimings) > 0 {
+		fmt.Printf("\nPer-state timings:\n")
+		for state, duration := range metrics.StateTimings {
+			parkCount := len(parksByState[state])
+			fmt.Printf("  %s: %v (%d parks)\n", state, duration, parkCount)
+		}
+	}
+
 	logger.Info("Scraping completed",
 		"total_parks", len(parks),
-		"states_count", len(parksByState))
+		"states_count", len(parksByState),
+		"total_duration", metrics.TotalDuration,
+		"concurrent", metrics.Concurrent)
 
 	// Save to JSON
 	err = saveParksToJSON(parks, "parks.json")
@@ -111,6 +137,14 @@ func main() {
 
 	logger.Info("Saved results to file", "filename", "parks.json")
 	fmt.Printf("\n✓ Saved results to parks.json\n")
+}
+
+// getExecutionMode returns a human-readable string for the execution mode
+func getExecutionMode(concurrent bool) string {
+	if concurrent {
+		return "Concurrent (parallel)"
+	}
+	return "Sequential"
 }
 
 // parseStates splits a comma-separated string into a slice of state codes
