@@ -21,7 +21,7 @@ public class FileParkRepository : IParksRepository
     {
         try
         {
-            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "il-state-parks.json");
+            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "parks.json");
             Console.WriteLine(jsonPath);
             string jsonContent = File.ReadAllText(jsonPath);
             var parkList = JsonSerializer.Deserialize<List<Park>>(jsonContent);
@@ -75,5 +75,20 @@ public class FileParkRepository : IParksRepository
     {
         // Return all parks
         return Task.FromResult(Results.Ok(Parks.Values));
+    }
+
+    public Task<IResult> SearchGeographic(double latitude, double longitude, string activity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IResult> SearchGeographic(double latitude, double longitude, string activity, double radiusKm)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IResult> DeleteParkAsync(string parkCode)
+    {
+        throw new NotImplementedException();
     }
 }

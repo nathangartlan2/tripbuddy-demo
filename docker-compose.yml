@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    platform: linux/amd64
+    container_name: tripbuddy-postgres
+    environment:
+      POSTGRES_DB: tripbuddy
+      POSTGRES_USER: tripbuddy_user
+      POSTGRES_PASSWORD: tripbuddy_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tripbuddy_user -d tripbuddy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripbuddy-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: tripbuddy-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=tripbuddy;Username=tripbuddy_user;Password=tripbuddy_pass
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tripbuddy-network
+
+networks:
+  tripbuddy-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

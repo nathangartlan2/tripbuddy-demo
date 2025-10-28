@@ -9,7 +9,11 @@ public interface IParksRepository
 {
     Task<IResult> GetParksAsync();
 
-    Task<IResult> GetParkAsync(string id);
+    Task<IResult> GetParkAsync(string parkCode);
 
     Task<IResult> CreateParkAsync(Park park);
+
+    Task<IResult> DeleteParkAsync(string parkCode);
+
+    Task<IResult> SearchGeographic(double latitude, double longitude, string activity, double radiusKm);
 }
