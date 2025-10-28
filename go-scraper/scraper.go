@@ -2,15 +2,22 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"log/slog"
 	"os"
+	"strings"
 
 	"scraper/scrapers"
 )
 
 func main() {
+	// Parse command line flags
+	concurrent := flag.Bool("concurrent", false, "Enable concurrent/parallel scraping")
+	states := flag.String("states", "", "Comma-separated list of state codes to scrape (e.g., IL,IN). Leave empty to scrape all.")
+	flag.Parse()
+
 	// Load configuration
 	config, err := loadConfig("config.json")
 	if err != nil {
@@ -23,6 +30,7 @@ func main() {
 
 	logger.Info("Starting scraper",
 		"log_level", config.LogLevel,
+		"request_delay_seconds", config.RequestDelay,
 		"states_configured", len(config.Scrapers))
 
 	// Convert main config format to scrapers.StateConfig format
@@ -42,22 +50,23 @@ func main() {
 		}
 	}
 
-	// Create multi-state scraper with logger
-	multiScraper := scrapers.NewMultiStateScraper(scraperConfigs, logger)
+	// Create multi-state scraper with logger and request delay
+	multiScraper := scrapers.NewMultiStateScraper(scraperConfigs, logger, config.RequestDelay)
 
-	// Configure which states to scrape
-	// Options:
-	//   1. Specify states: statesToScrape := []string{"IL", "IN"}
-	//   2. Scrape all: statesToScrape := []string{} or nil
-	statesToScrape := []string{"IL", "IN"} // Change this as needed
-
-	// Choose execution mode
-	concurrent := false // Set to true for parallel scraping
+	// Parse states to scrape from command line or default to all
+	var statesToScrape []string
+	if *states != "" {
+		// Split comma-separated states
+		statesToScrape = parseStates(*states)
+	} else {
+		// Default: scrape all configured states
+		statesToScrape = []string{}
+	}
 
 	fmt.Println("\n=== Multi-State Park Scraper ===")
 	fmt.Printf("States to scrape: %v\n", statesToScrape)
 	fmt.Printf("Execution mode: ")
-	if concurrent {
+	if *concurrent {
 		fmt.Println("Concurrent (parallel)")
 	} else {
 		fmt.Println("Sequential")
@@ -66,10 +75,10 @@ func main() {
 
 	logger.Info("Starting park scraping",
 		"states", statesToScrape,
-		"concurrent", concurrent)
+		"concurrent", *concurrent)
 
 	// Scrape parks
-	parks, err := multiScraper.ScrapeStates(statesToScrape, concurrent)
+	parks, err := multiScraper.ScrapeStates(statesToScrape, *concurrent)
 	if err != nil {
 		logger.Error("Failed to scrape parks", "error", err)
 		log.Fatalf("Failed to scrape parks: %v", err)
@@ -102,6 +111,23 @@ func main() {
 
 	logger.Info("Saved results to file", "filename", "parks.json")
 	fmt.Printf("\n✓ Saved results to parks.json\n")
+}
+
+// parseStates splits a comma-separated string into a slice of state codes
+func parseStates(statesStr string) []string {
+	if statesStr == "" {
+		return []string{}
+	}
+
+	// Split by comma and trim whitespace
+	var states []string
+	for _, state := range strings.Split(statesStr, ",") {
+		trimmed := strings.TrimSpace(state)
+		if trimmed != "" {
+			states = append(states, trimmed)
+		}
+	}
+	return states
 }
 
 // saveParksToJSON saves a slice of parks to a JSON file

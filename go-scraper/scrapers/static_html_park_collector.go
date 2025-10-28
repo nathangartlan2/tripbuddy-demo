@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -69,8 +70,17 @@ func (c *StaticHTMLParkCollector) matchesHrefPattern(href string) bool {
 func (c *StaticHTMLParkCollector) CollectParkURLs(homepageURL string) ([]string, error) {
 	var parkURLs []string
 
-	// Create collector
-	cHomePage := colly.NewCollector()
+	// Create collector with browser-like settings
+	cHomePage := colly.NewCollector(
+		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
+	)
+
+	// Add rate limiting
+	cHomePage.Limit(&colly.LimitRule{
+		DomainGlob:  "*",
+		Parallelism: 1,
+		Delay:       1 * time.Second,
+	})
 
 	// Build the section selector
 	sectionSelector := c.buildSectionSelector()
@@ -79,6 +89,9 @@ func (c *StaticHTMLParkCollector) CollectParkURLs(homepageURL string) ([]string,
 
 	// ===== Extract park links from static HTML =======
 	cHomePage.OnRequest(func(r *colly.Request) {
+		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+		r.Headers.Set("Accept-Language", "en-US,en;q=0.9")
+		r.Headers.Set("Connection", "keep-alive")
 		fmt.Println("[Collector] Visiting homepage:", r.URL)
 	})
 

@@ -11,14 +11,16 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	LogLevel string                 `json:"logLevel"` // "debug", "info", "warn", "error"
-	Scrapers map[string]StateConfig `json:"-"`        // Map of state code -> config
+	LogLevel     string                 `json:"logLevel"`     // "debug", "info", "warn", "error"
+	RequestDelay int                    `json:"requestDelay"` // Delay between requests in seconds
+	Scrapers     map[string]StateConfig `json:"-"`            // Map of state code -> config
 }
 
 // configJSON is used for unmarshaling the JSON array
 type configJSON struct {
-	LogLevel string         `json:"logLevel"`
-	Scrapers []StateConfig `json:"scrapers"`
+	LogLevel     string         `json:"logLevel"`
+	RequestDelay int            `json:"requestDelay"`
+	Scrapers     []StateConfig `json:"scrapers"`
 }
 
 // StateConfig holds Illinois scraper configuration
@@ -62,13 +64,19 @@ func loadConfig(filename string) (*Config, error) {
 
 	// Convert array to map keyed by state code
 	config := &Config{
-		LogLevel: jsonConfig.LogLevel,
-		Scrapers: make(map[string]StateConfig),
+		LogLevel:     jsonConfig.LogLevel,
+		RequestDelay: jsonConfig.RequestDelay,
+		Scrapers:     make(map[string]StateConfig),
 	}
 
 	// Default to "info" if not specified
 	if config.LogLevel == "" {
 		config.LogLevel = "info"
+	}
+
+	// Default to 2 seconds if not specified
+	if config.RequestDelay == 0 {
+		config.RequestDelay = 2
 	}
 
 	for _, scraperConfig := range jsonConfig.Scrapers {

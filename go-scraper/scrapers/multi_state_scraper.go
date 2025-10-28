@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -31,15 +32,17 @@ type ParkPageConfig struct {
 
 // MultiStateScraper orchestrates scraping across multiple states
 type MultiStateScraper struct {
-	configs map[string]StateConfig
-	logger  *slog.Logger
+	configs      map[string]StateConfig
+	logger       *slog.Logger
+	requestDelay time.Duration
 }
 
 // NewMultiStateScraper creates a new multi-state scraper
-func NewMultiStateScraper(configs map[string]StateConfig, logger *slog.Logger) *MultiStateScraper {
+func NewMultiStateScraper(configs map[string]StateConfig, logger *slog.Logger, requestDelaySeconds int) *MultiStateScraper {
 	return &MultiStateScraper{
-		configs: configs,
-		logger:  logger,
+		configs:      configs,
+		logger:       logger,
+		requestDelay: time.Duration(requestDelaySeconds) * time.Second,
 	}
 }
 
@@ -155,10 +158,29 @@ func (m *MultiStateScraper) scrapeParkPages(stateCode string, config StateConfig
 	var parks []Park
 	var mu sync.Mutex
 
-	// Create collector for park pages
-	cParkPage := colly.NewCollector()
+	// Create collector for park pages with browser-like settings
+	cParkPage := colly.NewCollector(
+		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
+	)
 
+	// Add rate limiting to avoid being blocked
+	cParkPage.Limit(&colly.LimitRule{
+		DomainGlob:  "*",
+		Parallelism: 1,
+		Delay:       m.requestDelay,
+	})
+
+	// Set headers to look more like a real browser and log requests
 	cParkPage.OnRequest(func(r *colly.Request) {
+		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+		r.Headers.Set("Accept-Language", "en-US,en;q=0.9")
+		r.Headers.Set("Accept-Encoding", "gzip, deflate, br")
+		r.Headers.Set("Connection", "keep-alive")
+		r.Headers.Set("Upgrade-Insecure-Requests", "1")
+		r.Headers.Set("Sec-Fetch-Dest", "document")
+		r.Headers.Set("Sec-Fetch-Mode", "navigate")
+		r.Headers.Set("Sec-Fetch-Site", "none")
+
 		m.logger.Debug("Scraping park page", "state", stateCode, "url", r.URL.String())
 	})
 
