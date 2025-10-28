@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"scraper/scrapers"
@@ -10,11 +11,13 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	Scrapers map[string]StateConfig `json:"-"` // Map of state code -> config
+	LogLevel string                 `json:"logLevel"` // "debug", "info", "warn", "error"
+	Scrapers map[string]StateConfig `json:"-"`        // Map of state code -> config
 }
 
 // configJSON is used for unmarshaling the JSON array
 type configJSON struct {
+	LogLevel string         `json:"logLevel"`
 	Scrapers []StateConfig `json:"scrapers"`
 }
 
@@ -59,7 +62,13 @@ func loadConfig(filename string) (*Config, error) {
 
 	// Convert array to map keyed by state code
 	config := &Config{
+		LogLevel: jsonConfig.LogLevel,
 		Scrapers: make(map[string]StateConfig),
+	}
+
+	// Default to "info" if not specified
+	if config.LogLevel == "" {
+		config.LogLevel = "info"
 	}
 
 	for _, scraperConfig := range jsonConfig.Scrapers {
@@ -70,4 +79,27 @@ func loadConfig(filename string) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+// setupLogger creates a logger with the specified level
+func setupLogger(levelStr string) *slog.Logger {
+	var level slog.Level
+	switch levelStr {
+	case "debug":
+		level = slog.LevelDebug
+	case "info":
+		level = slog.LevelInfo
+	case "warn":
+		level = slog.LevelWarn
+	case "error":
+		level = slog.LevelError
+	default:
+		level = slog.LevelInfo
+	}
+
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+	})
+
+	return slog.New(handler)
 }

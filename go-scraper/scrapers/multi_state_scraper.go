@@ -2,6 +2,7 @@ package scrapers
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"sync"
 
@@ -31,12 +32,14 @@ type ParkPageConfig struct {
 // MultiStateScraper orchestrates scraping across multiple states
 type MultiStateScraper struct {
 	configs map[string]StateConfig
+	logger  *slog.Logger
 }
 
 // NewMultiStateScraper creates a new multi-state scraper
-func NewMultiStateScraper(configs map[string]StateConfig) *MultiStateScraper {
+func NewMultiStateScraper(configs map[string]StateConfig, logger *slog.Logger) *MultiStateScraper {
 	return &MultiStateScraper{
 		configs: configs,
+		logger:  logger,
 	}
 }
 
@@ -70,14 +73,14 @@ func (m *MultiStateScraper) scrapeSequential(stateCodes []string) ([]Park, error
 	var allParks []Park
 
 	for _, stateCode := range stateCodes {
-		fmt.Printf("\n=== Scraping %s ===\n", stateCode)
+		m.logger.Info("Starting sequential scrape", "state", stateCode)
 
 		parks, err := m.scrapeState(stateCode)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scrape %s: %w", stateCode, err)
 		}
 
-		fmt.Printf("✓ Scraped %d parks from %s\n", len(parks), stateCode)
+		m.logger.Info("Completed scraping state", "state", stateCode, "parks_count", len(parks))
 		allParks = append(allParks, parks...)
 	}
 
@@ -98,7 +101,7 @@ func (m *MultiStateScraper) scrapeConcurrent(stateCodes []string) ([]Park, error
 		go func(code string) {
 			defer wg.Done()
 
-			fmt.Printf("\n=== Scraping %s (concurrent) ===\n", code)
+			m.logger.Info("Starting concurrent scrape", "state", code)
 
 			parks, err := m.scrapeState(code)
 
@@ -106,9 +109,10 @@ func (m *MultiStateScraper) scrapeConcurrent(stateCodes []string) ([]Park, error
 			defer mu.Unlock()
 
 			if err != nil {
+				m.logger.Error("Failed to scrape state", "state", code, "error", err)
 				errors = append(errors, fmt.Errorf("failed to scrape %s: %w", code, err))
 			} else {
-				fmt.Printf("✓ Scraped %d parks from %s\n", len(parks), code)
+				m.logger.Info("Completed scraping state", "state", code, "parks_count", len(parks))
 				allParks = append(allParks, parks...)
 			}
 		}(stateCode)
@@ -135,12 +139,12 @@ func (m *MultiStateScraper) scrapeState(stateCode string) ([]Park, error) {
 	}
 
 	// Step 2: Collect park URLs from homepage
-	fmt.Printf("[%s] Collecting park URLs from homepage...\n", stateCode)
+	m.logger.Debug("Collecting park URLs from homepage", "state", stateCode, "base_url", config.BaseURL)
 	parkURLs, err := parkCollector.CollectParkURLs(config.BaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to collect park URLs: %w", err)
 	}
-	fmt.Printf("[%s] Found %d park URLs\n", stateCode, len(parkURLs))
+	m.logger.Debug("Found park URLs", "state", stateCode, "url_count", len(parkURLs))
 
 	// Step 3: Scrape each park page
 	return m.scrapeParkPages(stateCode, config, parkURLs)
@@ -155,7 +159,7 @@ func (m *MultiStateScraper) scrapeParkPages(stateCode string, config StateConfig
 	cParkPage := colly.NewCollector()
 
 	cParkPage.OnRequest(func(r *colly.Request) {
-		fmt.Printf("[%s] Scraping park page: %s\n", stateCode, r.URL)
+		m.logger.Debug("Scraping park page", "state", stateCode, "url", r.URL.String())
 	})
 
 	// Extract park details from individual park pages
@@ -165,7 +169,11 @@ func (m *MultiStateScraper) scrapeParkPages(stateCode string, config StateConfig
 		latitudeStr := e.ChildText(config.ParkPage.Selectors.LatitudeSelector)
 		longitudeStr := e.ChildText(config.ParkPage.Selectors.LongitudeSelector)
 
-		fmt.Printf("[%s] Park: %s (Lat: %s, Lon: %s)\n", stateCode, parkName, latitudeStr, longitudeStr)
+		m.logger.Debug("Extracted park data",
+			"state", stateCode,
+			"park_name", parkName,
+			"latitude", latitudeStr,
+			"longitude", longitudeStr)
 
 		// Convert lat/long strings to float32
 		latitude, err1 := strconv.ParseFloat(latitudeStr, 32)
@@ -190,29 +198,44 @@ func (m *MultiStateScraper) scrapeParkPages(stateCode string, config StateConfig
 			parks = append(parks, p)
 			mu.Unlock()
 
-			fmt.Printf("[%s] ✓ Added park: %s (%.3f, %.3f)\n",
-				stateCode, p.Name, p.Latitude, p.Longitude)
+			m.logger.Debug("Added park",
+				"state", stateCode,
+				"park_name", p.Name,
+				"latitude", p.Latitude,
+				"longitude", p.Longitude)
 		} else {
-			fmt.Printf("[%s] ⚠ Skipped park due to missing/invalid data\n", stateCode)
+			m.logger.Warn("Skipped park due to missing/invalid data",
+				"state", stateCode,
+				"park_name", parkName,
+				"has_lat", err1 == nil,
+				"has_lon", err2 == nil)
 		}
 	})
 
 	cParkPage.OnError(func(r *colly.Response, err error) {
-		fmt.Printf("[%s] ✗ Error scraping %s: %v\n", stateCode, r.Request.URL, err)
+		m.logger.Error("Error scraping page",
+			"state", stateCode,
+			"url", r.Request.URL.String(),
+			"error", err)
 	})
 
 	// Visit all park URLs
 	for _, url := range parkURLs {
 		err := cParkPage.Visit(url)
 		if err != nil {
-			fmt.Printf("[%s] Error visiting %s: %v\n", stateCode, url, err)
+			m.logger.Error("Error visiting URL",
+				"state", stateCode,
+				"url", url,
+				"error", err)
 		}
 	}
 
 	// Wait for collector to finish
 	cParkPage.Wait()
 
-	fmt.Printf("[%s] Completed: %d parks scraped\n", stateCode, len(parks))
+	m.logger.Debug("Completed scraping park pages",
+		"state", stateCode,
+		"parks_scraped", len(parks))
 
 	return parks, nil
 }

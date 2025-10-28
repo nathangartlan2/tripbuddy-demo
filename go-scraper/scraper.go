@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"scraper/scrapers"
@@ -15,6 +16,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	// Setup logger with configured level
+	logger := setupLogger(config.LogLevel)
+	slog.SetDefault(logger)
+
+	logger.Info("Starting scraper",
+		"log_level", config.LogLevel,
+		"states_configured", len(config.Scrapers))
 
 	// Convert main config format to scrapers.StateConfig format
 	scraperConfigs := make(map[string]scrapers.StateConfig)
@@ -33,8 +42,8 @@ func main() {
 		}
 	}
 
-	// Create multi-state scraper
-	multiScraper := scrapers.NewMultiStateScraper(scraperConfigs)
+	// Create multi-state scraper with logger
+	multiScraper := scrapers.NewMultiStateScraper(scraperConfigs, logger)
 
 	// Configure which states to scrape
 	// Options:
@@ -55,9 +64,14 @@ func main() {
 	}
 	fmt.Println()
 
+	logger.Info("Starting park scraping",
+		"states", statesToScrape,
+		"concurrent", concurrent)
+
 	// Scrape parks
 	parks, err := multiScraper.ScrapeStates(statesToScrape, concurrent)
 	if err != nil {
+		logger.Error("Failed to scrape parks", "error", err)
 		log.Fatalf("Failed to scrape parks: %v", err)
 	}
 
@@ -75,11 +89,18 @@ func main() {
 		fmt.Printf("%s: %d parks\n", state, len(statePark))
 	}
 
+	logger.Info("Scraping completed",
+		"total_parks", len(parks),
+		"states_count", len(parksByState))
+
 	// Save to JSON
 	err = saveParksToJSON(parks, "parks.json")
 	if err != nil {
+		logger.Error("Failed to save parks to JSON", "error", err)
 		log.Fatalf("Failed to save parks to JSON: %v", err)
 	}
+
+	logger.Info("Saved results to file", "filename", "parks.json")
 	fmt.Printf("\n✓ Saved results to parks.json\n")
 }
 
