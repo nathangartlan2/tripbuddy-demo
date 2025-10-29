@@ -8,7 +8,7 @@ import (
 
 
 func main() {
-	extractor := &extractors.IlParkExtractor{}
+	extractor := &extractors.ILParkExtractor{}
 	il := scrapers.NewILParkScraper(5, extractor)
 
 	output, _, _ := il.ScrapePark("https://dnr.illinois.gov/parks/park.starvedrock.html")

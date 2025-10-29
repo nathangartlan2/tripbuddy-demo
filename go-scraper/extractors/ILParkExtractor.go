@@ -9,10 +9,10 @@ import (
 	"github.com/gocolly/colly"
 )
 
-type IlParkExtractor struct {
+type ILParkExtractor struct {
 }
 
-func (s *IlParkExtractor) ExtractParkData(e *colly.HTMLElement) *models.Park{
+func (s *ILParkExtractor) ExtractParkData(e *colly.HTMLElement) *models.Park{
 	fmt.Println("[Level 2] Extracting park details from:", e.Request.URL)
 
 	// Extract park information
