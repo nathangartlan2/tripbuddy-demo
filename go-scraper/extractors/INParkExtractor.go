@@ -42,7 +42,7 @@ func (s *INParkExtractor) ExtractParkData(e *colly.HTMLElement) *models.Park{
 	if parkName != ""  {
 		return &models.Park{
 			Name:       parkName,
-			StateCode:  "IL", // Illinois - could be extracted from page if needed
+			StateCode:  "IN", // Illinois - could be extracted from page if needed
 			Latitude:   float32(latitude),
 			Longitude:  float32(longitude),
 			Activities: activities,
