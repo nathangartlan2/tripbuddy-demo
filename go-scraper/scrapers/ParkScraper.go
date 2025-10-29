@@ -1,5 +1,7 @@
 package scrapers
 
+import "scraper/models"
+
 type ParkScraper interface {
-	 ScrapePark(url string) (*Park, error)
+	 ScrapePark(url string) (*models.Park, error)
 }
