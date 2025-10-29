@@ -1,213 +1,102 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
-	"sync"
-
-	"github.com/gocolly/colly"
+	"log"
+	"scraper/config"
+	"scraper/events"
+	"scraper/extractors"
+	"scraper/models"
+	"scraper/scrapers"
+	"scraper/writers"
+	"time"
 )
 
+func main() {
+	// Load URL configuration from urls.json
+	urlConfig, err := config.LoadURLConfig("urls.json")
+	if err != nil {
+		log.Fatalf("Failed to load URL config: %v", err)
+	}
 
-type park struct {
-	Name string  `json:"name"`
-	StateCode string `json:"stateCode"`
-	Latitude float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
-	Activities []parkActivity `json:"activities"`
-}
+	// Get state-to-URLs dictionary
+	stateURLs := urlConfig.GetAllURLs()
 
-type parkActivity struct {
-	Name string `json:"activityName`
-	Description string `json:"description"`
+	// Create extractor factory
+	extractorFactory := extractors.NewExtractorFactory()
 
-}
+	// Create event publisher
+	publisher := events.NewParkEventPublisher()
+	defer publisher.Close()
 
-// CollectorChain represents a chain of collectors
-type CollectorChain struct {
-	collector *colly.Collector
-	next      *CollectorChain
-}
+	// Create and subscribe JSON writer
+	jsonWriter := writers.NewParkJSONWriter("output")
+	publisher.Subscribe(jsonWriter)
 
-// VisitNext calls Visit on the next collector in the chain
-func (cc *CollectorChain) VisitNext(url string) {
-	if cc.next != nil {
-		cc.next.collector.Visit(url)
+	// Scrape parks for each state
+	results := scrapeAllStates(stateURLs, extractorFactory, publisher)
+
+	// Wait for all events to be processed
+	publisher.WaitForQueue()
+
+	// Print summary
+	fmt.Printf("\n=== Scraping Summary ===\n")
+	for state, parks := range results {
+		fmt.Printf("%s: %d parks scraped\n", state, len(parks))
 	}
 }
 
-// Wait waits for the current collector to finish
-func (cc *CollectorChain) Wait() {
-	cc.collector.Wait()
+// scrapeAllStates takes a map of stateCode -> []urls and scrapes all parks
+func scrapeAllStates(stateURLs map[string][]string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) map[string][]*models.Park {
+	results := make(map[string][]*models.Park)
+
+	for stateCode, urls := range stateURLs {
+		fmt.Printf("\n=== Scraping %s (%d parks) ===\n", stateCode, len(urls))
+		parks := scrapeParksByState(stateCode, urls, factory, publisher)
+		results[stateCode] = parks
+	}
+
+	return results
 }
 
-func main(){
-	// Slice to store all parks
-	var parks []park
-	var mu sync.Mutex // Mutex to safely append to slice from concurrent requests
+// scrapeParksByState scrapes all parks for a given state
+func scrapeParksByState(stateCode string, urls []string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) []*models.Park {
+	parks := make([]*models.Park, 0, len(urls))
 
-	// Create collectors
-	cHomePage := colly.NewCollector()
-	cJsonAPI := colly.NewCollector()
-	cParkPage := colly.NewCollector()
+	// Get appropriate extractor for state using factory
+	extractor := factory.CreateExtractor(stateCode)
+	if extractor == nil {
+		log.Printf("No extractor found for state: %s", stateCode)
+		return parks
+	}
 
-	// Build the chain: HomePage -> JsonAPI -> ParkPage
-	chainParkPage := &CollectorChain{collector: cParkPage, next: nil}
-	chainJsonAPI := &CollectorChain{collector: cJsonAPI, next: chainParkPage}
-	chainHomePage := &CollectorChain{collector: cHomePage, next: chainJsonAPI}
+	// Create scraper
+	scraper := scrapers.NewBaseParkScraper(5, extractor)
 
-	// ===== Level 2: Finding Park API =======
-	cHomePage.OnRequest(func(r *colly.Request){
-		fmt.Println("[Level 0] Visiting:", r.URL)
-	})
+	// Scrape each URL
+	for i, url := range urls {
+		fmt.Printf("[%d/%d] Scraping: %s\n", i+1, len(urls), url)
 
-	cHomePage.OnHTML("[data-api-url]", func(e *colly.HTMLElement) {
-		jsonURL := e.Request.AbsoluteURL(e.Attr("data-api-url"))
-		fmt.Println("[Level 0] Found JSON API:", jsonURL)
-		chainHomePage.VisitNext(jsonURL)
-	})
-
-	// ===== LEVEL 1: JSON Extraction =====
-
-	cJsonAPI.OnRequest(func(r *colly.Request) {
-		fmt.Println("[Level 1] Visiting:", r.URL)
-	})
-
-	// Parse JSON response and extract park URLs
-	cJsonAPI.OnResponse(func(r *colly.Response) {
-		contentType := r.Headers.Get("Content-Type")
-		if strings.Contains(contentType, "application/json" ){
-			fmt.Println("[Level 1] Processing JSON response")
-
-			// Parse the JSON to extract park URLs
-			var jsonData map[string]interface{}
-			err := json.Unmarshal(r.Body, &jsonData)
-			if err != nil {
-				fmt.Printf("Error parsing JSON: %v\n", err)
-				return
-			}
-
-			// Extract park URLs from JSON
-			// The JSON structure typically has an array of items with park details
-			if items, ok := jsonData["listItems"].([]interface{}); ok {
-				fmt.Printf("[Level 1] Found %d parks\n", len(items))
-
-				for _, item := range items {
-					if parkItem, ok := item.(map[string]interface{}); ok {
-						// Extract the park name
-						if name, ok := parkItem["parkName"].(string); ok {
-							fmt.Printf("[Level 1] Found park: %s\n", name)
-						}
-
-						// Extract the park page URL from nested "meta" object
-						if meta, ok := parkItem["meta"].(map[string]interface{}); ok {
-							if url, ok := meta["dynamicPageLink"].(string); ok {
-								absoluteURL := r.Request.AbsoluteURL(url)
-								fmt.Printf("[Level 1] Queueing park page: %s\n", absoluteURL)
-								chainJsonAPI.VisitNext(absoluteURL)
-							}
-
-						}
-					}
-				}
-			} else {
-				// Fallback: print the JSON structure to understand it better
-				fmt.Println("[Level 1] JSON structure (first 500 chars):")
-				jsonStr := string(r.Body)
-				if len(jsonStr) > 500 {
-					fmt.Println(jsonStr[:500])
-				} else {
-					fmt.Println(jsonStr)
-				}
-			}
+		park, duration, err := scraper.ScrapePark(url)
+		if err != nil {
+			log.Printf("Error scraping %s: %v", url, err)
+			continue
 		}
-	})
 
-	// ===== LEVEL 2: HTML Scraping =====
+		fmt.Printf("  ✓ %s (%.3f, %.3f) - %d activities - %v\n",
+			park.Name, park.Latitude, park.Longitude, len(park.Activities), duration)
 
-	cParkPage.OnRequest(func(r *colly.Request) {
-		fmt.Println("[Level 2] Scraping park page:", r.URL)
-	})
-	
-
-	// Extract park details from individual park pages
-	cParkPage.OnHTML("body", func(e *colly.HTMLElement) {
-		fmt.Println("[Level 2] Extracting park details from:", e.Request.URL)
-
-		// Extract park information
-		parkName := e.ChildText("h1")
-		latitudeStr := e.ChildText("div.cmp-contentfragment__element--parkLatitude p.cmp-contentfragment__element-value")
-		longitudeStr := e.ChildText("div.cmp-contentfragment__element--parkLongitude p.cmp-contentfragment__element-value")
-
-		fmt.Printf("[Level 2] Park Name: %s\n", parkName)
-		fmt.Printf("[Level 2] Latitude: %s\n", latitudeStr)
-		fmt.Printf("[Level 2] Longitude: %s\n", longitudeStr)
-
-		// Convert lat/long strings to float32
-		latitude, err1 := strconv.ParseFloat(latitudeStr, 32)
-		longitude, err2 := strconv.ParseFloat(longitudeStr, 32)
-		activities := []parkActivity{}
-
-		e.ForEach("ul.cmp-contentfragment__element-linkList li a", func(_ int, el *colly.HTMLElement) {
-			activityName := strings.TrimSpace(el.Text)
-			href := el.Attr("href")
-			ariaLabel := el.Attr("aria-label")
-
-
-			activity := parkActivity{
-				Name : activityName,
-				Description:  "",
-			}
-
-			activities = append(activities, activity)
-
-			fmt.Printf("Activity: %s, URL: %s, Label: %s\n", activity, href, ariaLabel)
+		// Publish event for scraped park
+		publisher.Publish(events.ParkScrapedEvent{
+			Park:      park,
+			StateCode: stateCode,
+			URL:       url,
+			Duration:  duration,
+			Timestamp: time.Now(),
 		})
 
-		// Only add park if we have valid data
-		if parkName != "" && err1 == nil && err2 == nil {
-			p := park{
-				Name:      parkName,
-				StateCode: "IL", // Illinois - could be extracted from page if needed
-				Latitude:  float32(latitude),
-				Longitude: float32(longitude),
-				Activities: activities,
-			}
-
-			// Thread-safe append to parks slice
-			mu.Lock()
-			parks = append(parks, p)
-			mu.Unlock()
-
-			fmt.Printf("[Level 2] Added park: %s (%.3f, %.3f)\n", p.Name, p.Latitude, p.Longitude)
-		}
-	})
-
-	// Start the scraping process
-	chainHomePage.collector.Visit("https://dnr.illinois.gov/parks/allparks.html")
-
-	// Wait for all collectors in the chain to finish
-	chainHomePage.Wait()
-	chainJsonAPI.Wait()
-	chainParkPage.Wait()
-
-	// Serialize parks slice to JSON file
-	fmt.Printf("\n[Final] Scraped %d parks total\n", len(parks))
-
-	jsonData, err := json.MarshalIndent(parks, "", "  ")
-	if err != nil {
-		fmt.Printf("Error serializing parks to JSON: %v\n", err)
-		return
+		parks = append(parks, park)
 	}
 
-	err = os.WriteFile("parks.json", jsonData, 0644)
-	if err != nil {
-		fmt.Printf("Error writing parks.json: %v\n", err)
-		return
-	}
-
-	fmt.Println("[Final] Parks data saved to parks.json")
+	return parks
 }

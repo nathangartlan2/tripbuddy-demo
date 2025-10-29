@@ -17,6 +17,16 @@
             "request": "launch",
             "mode": "auto",
             "program": "${fileDirname}"
+        },
+        {
+            "name": "Debug Scraper",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/go-scraper",
+            "cwd": "${workspaceFolder}/go-scraper",
+            "showLog": true,
+            "trace": "verbose"
         }
     ]
 }
