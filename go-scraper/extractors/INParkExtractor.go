@@ -1,7 +1,6 @@
 package extractors
 
 import (
-	"fmt"
 	"scraper/models"
 	"strings"
 
@@ -12,14 +11,11 @@ type INParkExtractor struct {
 }
 
 func (s *INParkExtractor) ExtractParkData(e *colly.HTMLElement) *models.Park{
-	fmt.Println("[Level 2] Extracting park details from:", e.Request.URL)
-
 	// Extract park information
 	parkName := e.ChildText("h1")
 	latitude := 41
 	longitude := -86
 
-	fmt.Printf("[Level 2] Park Name: %s\n", parkName)
 
 	activities := []models.ParkActivity{}
 

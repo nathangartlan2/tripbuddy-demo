@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"log"
 	"scraper/config"
+	"scraper/events"
 	"scraper/extractors"
 	"scraper/models"
 	"scraper/scrapers"
+	"scraper/writers"
+	"time"
 )
 
 func main() {
@@ -22,8 +25,19 @@ func main() {
 	// Create extractor factory
 	extractorFactory := extractors.NewExtractorFactory()
 
+	// Create event publisher
+	publisher := events.NewParkEventPublisher()
+	defer publisher.Close()
+
+	// Create and subscribe JSON writer
+	jsonWriter := writers.NewParkJSONWriter("output")
+	publisher.Subscribe(jsonWriter)
+
 	// Scrape parks for each state
-	results := scrapeAllStates(stateURLs, extractorFactory)
+	results := scrapeAllStates(stateURLs, extractorFactory, publisher)
+
+	// Wait for all events to be processed
+	publisher.WaitForQueue()
 
 	// Print summary
 	fmt.Printf("\n=== Scraping Summary ===\n")
@@ -33,12 +47,12 @@ func main() {
 }
 
 // scrapeAllStates takes a map of stateCode -> []urls and scrapes all parks
-func scrapeAllStates(stateURLs map[string][]string, factory *extractors.ExtractorFactory) map[string][]*models.Park {
+func scrapeAllStates(stateURLs map[string][]string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) map[string][]*models.Park {
 	results := make(map[string][]*models.Park)
 
 	for stateCode, urls := range stateURLs {
 		fmt.Printf("\n=== Scraping %s (%d parks) ===\n", stateCode, len(urls))
-		parks := scrapeParksByState(stateCode, urls, factory)
+		parks := scrapeParksByState(stateCode, urls, factory, publisher)
 		results[stateCode] = parks
 	}
 
@@ -46,7 +60,7 @@ func scrapeAllStates(stateURLs map[string][]string, factory *extractors.Extracto
 }
 
 // scrapeParksByState scrapes all parks for a given state
-func scrapeParksByState(stateCode string, urls []string, factory *extractors.ExtractorFactory) []*models.Park {
+func scrapeParksByState(stateCode string, urls []string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) []*models.Park {
 	parks := make([]*models.Park, 0, len(urls))
 
 	// Get appropriate extractor for state using factory
@@ -71,6 +85,15 @@ func scrapeParksByState(stateCode string, urls []string, factory *extractors.Ext
 
 		fmt.Printf("  ✓ %s (%.3f, %.3f) - %d activities - %v\n",
 			park.Name, park.Latitude, park.Longitude, len(park.Activities), duration)
+
+		// Publish event for scraped park
+		publisher.Publish(events.ParkScrapedEvent{
+			Park:      park,
+			StateCode: stateCode,
+			URL:       url,
+			Duration:  duration,
+			Timestamp: time.Now(),
+		})
 
 		parks = append(parks, park)
 	}

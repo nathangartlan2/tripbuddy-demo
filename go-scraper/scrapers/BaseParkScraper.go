@@ -36,6 +36,8 @@ func (s *BaseParkScraper) ScrapePark(url string) (*models.Park, time.Duration, e
 	time.Sleep(time.Duration(s.waitMS) * time.Millisecond)
 
 	for i := 0; i < s.maxRetries; i++ {
+		fmt.Println("[SCRAPER] park details from:", url)
+
 		Park , err := s.scrapeParkInternal(url)
 
 		if err == nil {
@@ -63,7 +65,6 @@ func (s *BaseParkScraper) scrapeParkInternal(url string) (*models.Park, error) {
 
 	cParkPage.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("User-Agent", s.userAgent)
-		fmt.Println("[Level 2] Scraping park page:", r.URL)
 	})
 
 	// Extract park details from individual park pages
