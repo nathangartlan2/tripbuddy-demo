@@ -3,16 +3,23 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"scraper/config"
 	"scraper/events"
 	"scraper/extractors"
 	"scraper/models"
 	"scraper/scrapers"
+	"scraper/services"
 	"scraper/writers"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file (ignore error if file doesn't exist)
+	_ = godotenv.Load()
+
 	// Load URL configuration from urls.json
 	urlConfig, err := config.LoadURLConfig("urls.json")
 	if err != nil {
@@ -22,8 +29,15 @@ func main() {
 	// Get state-to-URLs dictionary
 	stateURLs := urlConfig.GetAllURLs()
 
+	// Initialize geocoding service
+	mapboxAPIKey := os.Getenv("MAPBOX_API_KEY")
+	if mapboxAPIKey == "" {
+		log.Println("Warning: MAPBOX_API_KEY environment variable not set. Geocoding will not work.")
+	}
+	geocodingService := services.NewGeocodingService(mapboxAPIKey)
+
 	// Create extractor factory
-	extractorFactory := extractors.NewExtractorFactory()
+	extractorFactory := extractors.NewExtractorFactory(geocodingService)
 
 	// Create event publisher
 	publisher := events.NewParkEventPublisher()
