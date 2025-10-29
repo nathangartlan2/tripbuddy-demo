@@ -10,6 +10,6 @@ type Park struct {
 }
 
 type ParkActivity struct {
-	Name        string `json:"activityName"`
+	Name        string `json:"Name"`
 	Description string `json:"description"`
 }

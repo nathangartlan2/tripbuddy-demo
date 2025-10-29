@@ -45,7 +45,9 @@ func main() {
 
 	// Create and subscribe JSON writer
 	jsonWriter := writers.NewParkJSONWriter("output")
+	apiWriter := writers.NewAPIParkWriter("http://localhost:8080")
 	publisher.Subscribe(jsonWriter)
+	publisher.Subscribe((apiWriter))
 
 	// Scrape parks for each state
 	results := scrapeAllStates(stateURLs, extractorFactory, publisher)
