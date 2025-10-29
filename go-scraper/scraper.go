@@ -7,9 +7,9 @@ import (
 
 
 func main() {
-	il := scrapers.NewILParkScraper()
+	il := scrapers.NewILParkScraper(5)
 
-	output, _ := il.ScrapePark("https://dnr.illinois.gov/parks/park.starvedrock.html")
+	output, _, _ := il.ScrapePark("https://dnr.illinois.gov/parks/park.starvedrock.html")
 
 	for i := 0; i < 1000; i++{
 		il.ScrapePark("https://dnr.illinois.gov/parks/park.starvedrock.html")

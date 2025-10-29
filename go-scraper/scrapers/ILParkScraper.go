@@ -4,17 +4,23 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 )
 
 type ILParkScraper struct{
-
+	waitMS int;
+	maxRetries int;
+	attemptNumber int;
 }
 
 
-func NewILParkScraper() *ILParkScraper {
+func NewILParkScraper(maxRetries int) *ILParkScraper {
 	return &ILParkScraper{
+		waitMS: 1,
+		maxRetries: maxRetries,
+		attemptNumber: 1,
 	}
 }
 
@@ -65,7 +71,31 @@ func (s *ILParkScraper) extractParkData(e *colly.HTMLElement, scrapedPark **Park
 	}
 }
 
-func (s *ILParkScraper) ScrapePark(url string) (*Park, error) {
+
+
+func (s *ILParkScraper) ScrapePark(url string) (*Park, time.Duration, error) {
+	startTime := time.Now()
+
+	for i := 0; i < s.maxRetries; i++ {
+		Park , err := s.scrapeParkInternal(url)
+
+		if err == nil {
+			elapsed := time.Since(startTime)
+			return Park, elapsed, nil
+		} else {
+			fmt.Printf("[Retry %d/%d] Error scraping URL: %s\n", i+1, s.maxRetries, url)
+			fmt.Printf("  Error: %v\n", err)
+			fmt.Printf("  Waiting %dms before retry...\n\n", s.waitMS)
+			time.Sleep(time.Duration(s.waitMS) * time.Millisecond)
+			s.waitMS *= 2
+		}
+	}
+
+	elapsed := time.Since(startTime)
+	return nil, elapsed, fmt.Errorf("failed to scrape park after %d retries", s.maxRetries)
+}
+
+func (s *ILParkScraper) scrapeParkInternal(url string) (*Park, error) {
 	cParkPage := colly.NewCollector()
 
 	var scrapedPark *Park
