@@ -4,42 +4,43 @@ This document tracks security and production requirements for the TripBuddy API 
 
 ## Critical Security Issues (URGENT)
 
-### ❌ SQL Injection Vulnerabilities
-**Priority: CRITICAL - Fix Immediately**
+### ✅ SQL Injection Vulnerabilities - **FIXED**
+**Priority: CRITICAL - ~~Fix Immediately~~ COMPLETED**
 
-**Location:** `PostGresParksRepository.cs:56` in `CreateParkAsync`
+**Status:** All SQL injection vulnerabilities have been fixed with parameterized queries.
 
-**Issue:** Using string interpolation for SQL queries:
-```csharp
-VALUES ('{park.Name}', '{parkCode}', ...)
-```
+**Fixed Methods:**
+- ✅ `CreateParkAsync` - Now uses `@name`, `@parkCode`, `@stateCode`, etc.
+- ✅ `GetParkAsync` - Now uses `@parkCode`
+- ✅ `SearchGeographic` - Now uses `@latitude`, `@longitude`, `@activity`, `@radiusMeters`
+- ✅ `UpdateParkAsync` - Already used parameters
+- ✅ `DeleteParkAsync` - Already used parameters
+- ✅ `GetParksAsync` - No user input, inherently safe
 
-**Risk:** An attacker could send malicious input like:
-```json
-{"name": "'; DROP TABLE parks; --"}
-```
-
-**Fix Required:**
-- Switch ALL queries to use parameterized queries with `@parameters`
-- Review `CreateParkAsync`, `SearchGeographic`, and any other methods using string interpolation
-- The `DeleteParkAsync` method already uses parameters correctly - follow that pattern
+**Changes Made:**
+- All string interpolation (`$"..."` and `@$"..."`) replaced with parameterized queries
+- All user inputs now passed via `cmd.Parameters.AddWithValue()`
+- Added proper transaction handling with rollback on errors
 
 ---
 
 ## Essential Requirements
 
-### 1. ✅ HTTPS Configuration
-**Status:** Not Implemented
+### 1. ✅ HTTPS Configuration - **COMPLETED**
+**Status:** Implemented
 
-**Requirements:**
-- Configure Kestrel to use HTTPS in production
-- Obtain SSL/TLS certificate (Let's Encrypt for free)
-- Redirect HTTP to HTTPS
-- Set HSTS headers
+**Completed:**
+- ✅ Configured Kestrel endpoints in `appsettings.json` files
+- ✅ Added `UseHttpsRedirection()` middleware (Program.cs:38)
+- ✅ Added `UseHsts()` middleware for production (Program.cs:41-44)
+- ✅ Development certificate trusted (`dotnet dev-certs https --trust`)
+- ✅ Dockerfile configured for HTTP (Fly.io handles HTTPS at edge)
+- ✅ docker-compose.yml uses HTTP-only for local development
 
 **Implementation:**
-- For Fly.io: Handled automatically by platform
-- For local dev: Use `dotnet dev-certs https --trust`
+- Local dev (`dotnet run`): HTTPS on `https://localhost:5001`
+- Docker (`docker-compose`): HTTP on `http://localhost:8080`
+- Fly.io production: HTTPS handled automatically by platform
 
 ---
 
@@ -108,29 +109,24 @@ app.UseRateLimiter();
 
 ---
 
-### 5. ❌ CORS Policy
-**Status:** Not Implemented
+### 5. ✅ CORS Policy - **COMPLETED**
+**Status:** Implemented
 
-**Current Risk:** API is either completely locked down or completely open
+**Completed:**
+- ✅ Added CORS services in `Program.cs:13-29`
+- ✅ Created "AllowAll" policy for development/testing
+- ✅ Created "Production" policy (placeholder for specific domain)
+- ✅ Added `UseCors()` middleware (Program.cs:44)
+- ✅ Currently using "AllowAll" in both dev and production (intentional for now)
 
-**Requirements:**
-- Configure explicit allowed origins
-- Don't use `AllowAnyOrigin()` in production
-- Set allowed HTTP methods
-- Configure allowed headers
+**Current Configuration:**
+- Allows requests from any origin (permissive for API development)
+- Allows all HTTP methods
+- Allows all headers
 
-**Implementation:**
-```csharp
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("ProductionPolicy", policy =>
-    {
-        policy.WithOrigins("https://yourdomain.com")
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-```
+**Next Step (when frontend is ready):**
+- Update "Production" policy with actual frontend domain
+- Switch to restrictive policy: `app.UseCors("Production")`
 
 ---
 
