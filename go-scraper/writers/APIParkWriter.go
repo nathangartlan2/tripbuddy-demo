@@ -32,12 +32,16 @@ func (w *APIParkWriter) OnParkScraped(event events.ParkScrapedEvent){
 	log.Printf("[APIWriter] Writing park %s to API", event.Park.Name)
 	resp, err := w.client.Post(requestURL, "Application/JSON", bodyReader)
 	if err != nil {
-		fmt.Errorf("[APIWriter] failed to post park %s \n Error : %w", event.Park.Name, err)
+		fmt.Printf("[APIWriter] failed to post park %s \n Error : %w", event.Park.Name, err)
+	}
+
+	// Check response status
+	if resp.StatusCode == http.StatusOK {
+		fmt.Printf("[APIWriter] POST successful. API returned status %d", resp.StatusCode)
+	}else{
+		fmt.Printf("[APIWriter] POST Failed: %d", resp.StatusCode)
 	}
 	defer resp.Body.Close()
 
-	// Check response status
-	if resp.StatusCode != http.StatusOK {
-		fmt.Errorf("[APIWriter] POST successful. API returned status %d", resp.StatusCode)
-	}
+	
 }
