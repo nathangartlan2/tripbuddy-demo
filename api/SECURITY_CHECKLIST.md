@@ -26,21 +26,26 @@ This document tracks security and production requirements for the TripBuddy API 
 
 ## Essential Requirements
 
-### 1. ✅ HTTPS Configuration - **COMPLETED**
-**Status:** Implemented
+### 1. ❌ HTTPS Configuration
+**Status:** Partially Implemented
 
 **Completed:**
 - ✅ Configured Kestrel endpoints in `appsettings.json` files
-- ✅ Added `UseHttpsRedirection()` middleware (Program.cs:38)
-- ✅ Added `UseHsts()` middleware for production (Program.cs:41-44)
 - ✅ Development certificate trusted (`dotnet dev-certs https --trust`)
 - ✅ Dockerfile configured for HTTP (Fly.io handles HTTPS at edge)
-- ✅ docker-compose.yml uses HTTP-only for local development
 
-**Implementation:**
-- Local dev (`dotnet run`): HTTPS on `https://localhost:5001`
-- Docker (`docker-compose`): HTTP on `http://localhost:8080`
-- Fly.io production: HTTPS handled automatically by platform
+**Not Implemented:**
+- ❌ `UseHttpsRedirection()` middleware NOT in Program.cs
+- ❌ `UseHsts()` middleware NOT in Program.cs
+
+**Current State:**
+- Local dev: HTTP and HTTPS endpoints configured, but no redirection
+- Docker: HTTP only
+- Fly.io production: HTTPS handled automatically by platform (edge termination)
+
+**Required Actions:**
+- Add `UseHttpsRedirection()` middleware to Program.cs
+- Add `UseHsts()` middleware for production
 
 ---
 
@@ -111,24 +116,43 @@ app.UseRateLimiter();
 
 ---
 
-### 5. ✅ CORS Policy - **COMPLETED**
-**Status:** Implemented
+### 5. ❌ CORS Policy
+**Status:** Not Implemented
 
-**Completed:**
-- ✅ Added CORS services in `Program.cs:13-29`
-- ✅ Created "AllowAll" policy for development/testing
-- ✅ Created "Production" policy (placeholder for specific domain)
-- ✅ Added `UseCors()` middleware (Program.cs:44)
-- ✅ Currently using "AllowAll" in both dev and production (intentional for now)
+**Current State:**
+- ❌ No CORS services configured in Program.cs
+- ❌ No `UseCors()` middleware in Program.cs
+- API may be blocked by browsers for cross-origin requests
 
-**Current Configuration:**
-- Allows requests from any origin (permissive for API development)
-- Allows all HTTP methods
-- Allows all headers
+**Required Actions:**
+- Add `builder.Services.AddCors()` with appropriate policies
+- Add `app.UseCors()` middleware to pipeline
+- Configure allowed origins for production
+- Consider separate policies for development vs production
 
-**Next Step (when frontend is ready):**
-- Update "Production" policy with actual frontend domain
-- Switch to restrictive policy: `app.UseCors("Production")`
+**Recommended Implementation:**
+```csharp
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
+    options.AddPolicy("Production", policy =>
+    {
+        policy.WithOrigins("https://yourdomain.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Use CORS middleware
+app.UseCors("AllowAll"); // or "Production" for prod
+```
 
 ---
 
