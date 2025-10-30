@@ -177,6 +177,79 @@ public class PostGresParksRepository : IParksRepository
         return Results.Ok(parks);
     }
 
+    public async Task<IResult> UpdateParkAsync(string parkCode, Park park)
+    {
+        await using var conn = new NpgsqlConnection(_connectionString);
+        await conn.OpenAsync();
+
+        // Start transaction
+        await using var transaction = await conn.BeginTransactionAsync();
+
+        try
+        {
+            // First, get the park ID by parkCode
+            var getParkIdSql = "SELECT id FROM parks WHERE park_code = @parkCode";
+            await using var getParkCmd = new NpgsqlCommand(getParkIdSql, conn, transaction);
+            getParkCmd.Parameters.AddWithValue("parkCode", parkCode);
+
+            var parkId = await getParkCmd.ExecuteScalarAsync();
+
+            if (parkId == null)
+            {
+                await transaction.RollbackAsync();
+                return Results.NotFound($"Park with code '{parkCode}' not found");
+            }
+
+            // Update park fields
+            var updateParkSql = @"
+                UPDATE parks
+                SET name = @name,
+                    state_code = @stateCode,
+                    latitude = @latitude,
+                    longitude = @longitude
+                WHERE park_code = @parkCode";
+
+            await using var updateCmd = new NpgsqlCommand(updateParkSql, conn, transaction);
+            updateCmd.Parameters.AddWithValue("name", park.Name);
+            updateCmd.Parameters.AddWithValue("stateCode", park.StateCode);
+            updateCmd.Parameters.AddWithValue("latitude", park.Latitude);
+            updateCmd.Parameters.AddWithValue("longitude", park.Longitude);
+            updateCmd.Parameters.AddWithValue("parkCode", parkCode);
+
+            await updateCmd.ExecuteNonQueryAsync();
+
+            // Delete existing activities
+            var deleteActivitiesSql = "DELETE FROM activities WHERE park_id = @parkId";
+            await using var deleteCmd = new NpgsqlCommand(deleteActivitiesSql, conn, transaction);
+            deleteCmd.Parameters.AddWithValue("parkId", parkId);
+            await deleteCmd.ExecuteNonQueryAsync();
+
+            // Insert new activities
+            foreach (Activity activity in park.Activities)
+            {
+                var insertActivitySql = @"
+                    INSERT INTO activities (park_id, name, description)
+                    VALUES (@parkId, @name, @description)";
+
+                await using var insertCmd = new NpgsqlCommand(insertActivitySql, conn, transaction);
+                insertCmd.Parameters.AddWithValue("parkId", parkId);
+                insertCmd.Parameters.AddWithValue("name", activity.Name);
+                insertCmd.Parameters.AddWithValue("description", activity.Description ?? "");
+                await insertCmd.ExecuteNonQueryAsync();
+            }
+
+            // Commit transaction
+            await transaction.CommitAsync();
+
+            return Results.Ok(park);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return Results.Problem($"Error updating park: {ex.Message}");
+        }
+    }
+
     public async Task<IResult> DeleteParkAsync(string parkCode)
     {
         var sql = "DELETE FROM parks WHERE park_code = @parkCode RETURNING id";

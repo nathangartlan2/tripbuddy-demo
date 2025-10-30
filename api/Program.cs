@@ -4,7 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticAssets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Swagger/OpenAPI services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+// Configure Swagger middleware
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Get connection string from configuration (environment variable or appsettings.json)
 // In Docker: uses ConnectionStrings__PostgreSQL environment variable
@@ -14,13 +23,13 @@ string postGresConnection = builder.Configuration.GetConnectionString("PostgreSQ
 
 IParksRepository parkRepo = new PostGresParksRepository(postGresConnection);
 
-app.MapGet(pattern: "/", () => "TripBuddy API up and running");
-
 app.MapGet("/parks", async () => await parkRepo.GetParksAsync());
 
 app.MapGet("/park/{id}", async (string id) => await parkRepo.GetParkAsync(id));
 
 app.MapPost("/park", async ([FromBody] Park park) => await parkRepo.CreateParkAsync(park));
+
+app.MapPut("/park/{parkCode}", async (string parkCode, [FromBody] Park park) => await parkRepo.UpdateParkAsync(parkCode, park));
 
 app.MapDelete("/park/{id}", async (string id) => await parkRepo.DeleteParkAsync(id));
 
