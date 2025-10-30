@@ -13,6 +13,8 @@ public interface IParksRepository
 
     Task<IResult> CreateParkAsync(Park park);
 
+    Task<IResult> UpdateParkAsync(string parkCode, Park park);
+
     Task<IResult> DeleteParkAsync(string parkCode);
 
     Task<IResult> SearchGeographic(double latitude, double longitude, string activity, double radiusKm);

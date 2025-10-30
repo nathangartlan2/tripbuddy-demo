@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
     container_name: tripbuddy-api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Docker
       - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=tripbuddy;Username=tripbuddy_user;Password=tripbuddy_pass
     ports:
       - "8080:8080"

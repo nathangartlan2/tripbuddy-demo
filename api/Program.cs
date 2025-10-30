@@ -4,23 +4,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticAssets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Swagger/OpenAPI services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
-// Get connection string from configuration (environment variable or appsettings.json)
-// In Docker: uses ConnectionStrings__PostgreSQL environment variable
-// Locally: falls back to default localhost connection
-string postGresConnection = builder.Configuration.GetConnectionString("PostgreSQL")
-    ?? @"Host=localhost;Port=5432;Database=tripbuddy;Username=tripbuddy_user;Password=tripbuddy_pass";
+// Configure Swagger middleware
+app.UseSwagger();
+app.UseSwaggerUI();
 
-IParksRepository parkRepo = new PostGresParksRepository(postGresConnection);
-
-app.MapGet(pattern: "/", () => "TripBuddy API up and running");
+// Initialize the parks repository using the factory
+IParksRepository parkRepo = ParkRepoFactory(builder.Configuration);
 
 app.MapGet("/parks", async () => await parkRepo.GetParksAsync());
 
 app.MapGet("/park/{id}", async (string id) => await parkRepo.GetParkAsync(id));
 
 app.MapPost("/park", async ([FromBody] Park park) => await parkRepo.CreateParkAsync(park));
+
+app.MapPut("/park/{parkCode}", async (string parkCode, [FromBody] Park park) => await parkRepo.UpdateParkAsync(parkCode, park));
 
 app.MapDelete("/park/{id}", async (string id) => await parkRepo.DeleteParkAsync(id));
 
@@ -42,4 +46,36 @@ app.MapGet("/park/search", async (
     return Results.Ok(await parkRepo.GetParksAsync());
 });
 
+
 app.Run();
+
+static IParksRepository ParkRepoFactory(ConfigurationManager config)
+{
+    // Get repository type from configuration (default to PostgreSQL)
+    string repositoryType = config["RepositoryType"] ?? "PostgreSQL";
+
+    return repositoryType.ToLower() switch
+    {
+        "file" => new FileParkRepository(),
+
+        "postgresql" or "postgres" => CreatePostgreSqlRepository(config),
+
+        _ => throw new InvalidOperationException(
+            $"Unknown repository type: '{repositoryType}'. Valid options: 'File', 'PostgreSQL'")
+    };
+}
+
+static PostGresParksRepository CreatePostgreSqlRepository(ConfigurationManager config)
+{
+    // Get connection string from configuration
+    // Priority order:
+    // 1. DATABASE_URL (Fly.io automatically sets this when Postgres is attached)
+    // 2. ConnectionStrings:PostgreSQL (local dev, Docker, or manual Fly.io secret)
+    string connectionString = config["DATABASE_URL"]
+        ?? config.GetConnectionString("PostgreSQL")
+        ?? throw new InvalidOperationException(
+            "PostgreSQL connection string is not configured. " +
+            "Set 'DATABASE_URL' environment variable (Fly.io) or 'ConnectionStrings:PostgreSQL' in configuration.");
+
+    return new PostGresParksRepository(connectionString);
+}

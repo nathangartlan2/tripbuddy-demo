@@ -91,4 +91,9 @@ public class FileParkRepository : IParksRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<IResult> UpdateParkAsync(string parkCode, Park park)
+    {
+        throw new NotImplementedException();
+    }
 }
