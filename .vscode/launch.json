@@ -25,8 +25,7 @@
             "mode": "debug",
             "program": "${workspaceFolder}/go-scraper",
             "cwd": "${workspaceFolder}/go-scraper",
-            "showLog": true,
-            "trace": "verbose"
+
         }
     ]
 }

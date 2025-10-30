@@ -1,11 +1,17 @@
 package extractors
 
+import "scraper/services"
+
 // ExtractorFactory creates extractors based on state code
-type ExtractorFactory struct{}
+type ExtractorFactory struct{
+	geocodingService *services.GeocodingService
+}
 
 // NewExtractorFactory creates a new ExtractorFactory
-func NewExtractorFactory() *ExtractorFactory {
-	return &ExtractorFactory{}
+func NewExtractorFactory(geocodingService *services.GeocodingService) *ExtractorFactory {
+	return &ExtractorFactory{
+		geocodingService: geocodingService,
+	}
 }
 
 // CreateExtractor returns the appropriate extractor for a state code
@@ -14,7 +20,7 @@ func (f *ExtractorFactory) CreateExtractor(stateCode string) ParkExtractor {
 	case "IL":
 		return &ILParkExtractor{}
 	case "IN":
-		return &INParkExtractor{}
+		return NewINParkExtractor(f.geocodingService)
 	default:
 		return nil
 	}
