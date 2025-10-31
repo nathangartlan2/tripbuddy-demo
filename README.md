@@ -1,55 +1,40 @@
 # tripbuddy-demo
 
-Demo for Go Padawan Talk
+## API for searching US state parks and Go web scraper to populate data
 
-## Docker command guide
+This project builds a platform for outdoor enthusiasts to find outdoor activities in their area. The main use case is to request the API `/search` endpoint with a set of starting coordinates(latitide and longitude), a travel radius, and an activity (hiking, camping, etc.). The `/search` endpoint will return state parks within the radius that offer the activity.
 
-### Rebuild and Restart API Only
+Currently, this project has three main components:
 
-```bash
-# Rebuild the API container (without cache for clean build)
-docker-compose build --no-cache api
+1. REST API build in C#/.NET
+2. PostGres Database storing the park data
+3. A web scraper built in Go to collect park data and write it to the API
 
-# Restart the API service
-docker-compose up -d api
+## System Architecture
+
+```mermaid
+flowchart LR
+    A[State Park Website] -->|HTTP GET Raw HTML| C[Go Scraper]
+    B[Client] <-->|/Search| E[TripBuddy API<br/>.NET/C#]
+    C -->|HTTP POST JSON| E
+    E <-->|SQL CRUD| F[(PostgreSQL Database)]
+
+    style C fill:#00ADD8,color:#fff
+    style E fill:#512BD4,color:#fff
+    style F fill:#336791,color:#fff
 ```
 
-Or in one command:
-```bash
-docker-compose up -d --build api
-```
+#### Data Flow
 
-### Other Useful Commands
+##### Scraping
 
-```bash
-# Stop the API only
-docker-compose stop api
+1. **Go Scraper** visits state park websites and extracts park information (name, activities, address)
+2. **Scraper** sends park data via POST request to the TripBuddy API
+3. **API** validates and stores the park data in PostgreSQL database
+4. **Database** is configured with indices to enable geographic and full-text search
 
-# Start the API only (without rebuilding)
-docker-compose start api
+##### Search
 
-# Restart the API (without rebuilding)
-docker-compose restart api
-
-# View API logs
-docker-compose logs -f api
-
-# Rebuild and restart with logs visible
-docker-compose up --build api
-```
-
-### Quick Rebuild After Code Changes
-
-After modifying your C# code in `api/Program.cs` or other files:
-
-```bash
-docker-compose up -d --build api
-```
-
-This will:
-1. Rebuild the API Docker image
-2. Recreate the container
-3. Start it in detached mode
-4. Leave the postgres service running unchanged
-
-The API will be available at `http://localhost:8080`
+1. **Client** app requests `/Search` endpoint of API. Example : `/search?latitude=41.8789&longitude=-87.6359&activity=ski&radiusKm=1000`
+2. **API** queries **Database** for parks within the search radius with matching activities
+3. **API** returns results to client
