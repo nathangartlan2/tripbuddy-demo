@@ -58,14 +58,19 @@ docker-compose up
 
 ### 2. Populate the Database with Park Data
 
-The database starts empty. Use the Go scraper to populate it with park data:
+The database starts empty. Use the Go scraper to populate it with park data.
+
+**Important:** Make sure the API and database are running first (from step 1) before running the scraper.
 
 ```bash
 # Build the scraper image
 docker build -t tripbuddy-scraper ./go-scraper
 
 # Run the scraper (connects to the API and loads park data)
-docker run --network tripbuddy-demo_default tripbuddy-scraper
+# Note: The API must be running for this to work
+docker run --network tripbuddy-demo_tripbuddy-network --rm \
+  -e API_URL=http://api:8080 \
+  tripbuddy-scraper
 ```
 
 **Note:** Make sure you have a `.env` file in the `go-scraper/config` directory with your MapBox API key:
@@ -78,9 +83,17 @@ cp .env.example .env
 ```
 
 The `.env` file should contain:
+
 ```
 MAPBOX_API_KEY=your_key_here
 ```
+
+**What the scraper does:**
+
+- Connects to the API via the Docker network at `http://api:8080`
+- Scrapes state park websites and extracts park data
+- Writes park data to both the API (via POST) and local JSON files in `/data`
+- The `-v scraper_data:/data` mount persists the JSON files in a Docker volume
 
 ### 3. Query the API
 

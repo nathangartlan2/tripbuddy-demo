@@ -45,7 +45,17 @@ func main() {
 
 	// Create and subscribe JSON writer
 	jsonWriter := writers.NewParkJSONWriter("data")
-	apiWriter := writers.NewAPIParkWriter("http://localhost:8080")
+
+	// Get API URL from environment variable, default to localhost
+	apiURL := os.Getenv("API_URL")
+	if apiURL == "" {
+		apiURL = "http://localhost:8080"
+		log.Println("API_URL not set, using default: http://localhost:8080")
+	} else {
+		log.Printf("Using API_URL: %s", apiURL)
+	}
+
+	apiWriter := writers.NewAPIParkWriter(apiURL)
 	publisher.Subscribe(jsonWriter)
 	publisher.Subscribe((apiWriter))
 
