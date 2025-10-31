@@ -38,3 +38,13 @@ flowchart LR
 1. **Client** app requests `/Search` endpoint of API. Example : `/search?latitude=41.8789&longitude=-87.6359&activity=ski&radiusKm=1000`
 2. **API** queries **Database** for parks within the search radius with matching activities
 3. **API** returns results to client
+
+## Running the App
+
+### API and Database with Docker
+
+1. Ensure that you have [docker](https://www.docker.com/get-started/) installed on your machine
+2. **Start** the API and database in docker `docker-compose up`
+3. **Open** the [API Swagger Page](http://localhost:8080/swagger/index.html) in your browser
+4. Have fun!
+5. **Tear Down** by running `docker-compose down -v` (the `-v` flag removes the mounted volume that stores PostGres data on your machine)
