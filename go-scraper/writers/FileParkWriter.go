@@ -17,16 +17,9 @@ type FileParkWriter struct {
 
 // NewParkJSONWriter creates a new JSON writer that writes individual files per park to the /data directory
 func NewParkJSONWriter(outputDir string) *FileParkWriter {
-	// Use /data as the base directory
-	dataDir := "/data"
-
-	// Create the /data directory if it doesn't exist
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
-		log.Printf("[JSONWriter] Failed to create /data directory: %v", err)
-	}
 
 	return &FileParkWriter{
-		outputDir:  dataDir,
+		outputDir:  outputDir,
 	}
 }
 

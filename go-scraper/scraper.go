@@ -44,7 +44,7 @@ func main() {
 	defer publisher.Close()
 
 	// Create and subscribe JSON writer
-	jsonWriter := writers.NewParkJSONWriter("output")
+	jsonWriter := writers.NewParkJSONWriter("data")
 	apiWriter := writers.NewAPIParkWriter("http://localhost:8080")
 	publisher.Subscribe(jsonWriter)
 	publisher.Subscribe((apiWriter))
