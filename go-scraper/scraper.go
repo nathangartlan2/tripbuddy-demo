@@ -26,9 +26,6 @@ func main() {
 		log.Fatalf("Failed to load URL config: %v", err)
 	}
 
-	// Get state-to-URLs dictionary
-	stateURLs := urlConfig.GetAllURLs()
-
 	// Initialize geocoding service
 	mapboxAPIKey := os.Getenv("MAPBOX_API_KEY")
 	if mapboxAPIKey == "" {
@@ -55,12 +52,12 @@ func main() {
 		log.Printf("Using API_URL: %s", apiURL)
 	}
 
-	apiWriter := writers.NewAPIParkWriter(apiURL)
+	//apiWriter := writers.NewAPIParkWriter(apiURL)
 	publisher.Subscribe(jsonWriter)
-	publisher.Subscribe((apiWriter))
+	//publisher.Subscribe((apiWriter))
 
 	// Scrape parks for each state
-	results := scrapeAllStates(stateURLs, extractorFactory, publisher)
+	results := scrapeAllStates(urlConfig, extractorFactory, publisher)
 
 	// Wait for all events to be processed
 	publisher.WaitForQueue()
@@ -72,13 +69,25 @@ func main() {
 	}
 }
 
-// scrapeAllStates takes a map of stateCode -> []urls and scrapes all parks
-func scrapeAllStates(stateURLs map[string][]string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) map[string][]*models.Park {
+// scrapeAllStates takes the URL config and scrapes all parks for all states
+func scrapeAllStates(urlConfig *configHelper.URLConfig, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) map[string][]*models.Park {
 	results := make(map[string][]*models.Park)
 
-	for stateCode, urls := range stateURLs {
-		fmt.Printf("\n=== Scraping %s (%d parks) ===\n", stateCode, len(urls))
-		parks := scrapeParksByState(stateCode, urls, factory, publisher)
+	for _, stateCode := range urlConfig.GetAllStates() {
+		baseURL, ok := urlConfig.GetBaseURLByState(stateCode)
+		if !ok || baseURL == "" {
+			log.Printf("No base URL found for state: %s, skipping", stateCode)
+			continue
+		}
+
+		homePageUrl, ok := urlConfig.GetHomePageURLByState(stateCode)
+
+		if !ok || homePageUrl == "" {
+			log.Printf("No homePage URL found for state: %s, skipping", stateCode)
+			continue
+		}
+		fmt.Printf("\n=== Scraping %s ===\n", stateCode)
+		parks := scrapeParksByState(stateCode, baseURL, homePageUrl,factory, publisher)
 		results[stateCode] = parks
 	}
 
@@ -86,8 +95,8 @@ func scrapeAllStates(stateURLs map[string][]string, factory *extractors.Extracto
 }
 
 // scrapeParksByState scrapes all parks for a given state
-func scrapeParksByState(stateCode string, urls []string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) []*models.Park {
-	parks := make([]*models.Park, 0, len(urls))
+func scrapeParksByState(stateCode string, baseUrl string, homePageUrl string, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) []*models.Park {
+	parks := make([]*models.Park, 0)
 
 	// Get appropriate extractor for state using factory
 	extractor := factory.CreateExtractor(stateCode)
@@ -96,33 +105,41 @@ func scrapeParksByState(stateCode string, urls []string, factory *extractors.Ext
 		return parks
 	}
 
-	// Create scraper
-	scraper := scrapers.NewBaseParkScraper(5, extractor)
+	// For now, we'll use empty string for base URL - you may want to pass this as a parameter
+	gatherer := scrapers.NewJSONParkUrlGatherer(baseUrl)
 
-	// Scrape each URL
-	for i, url := range urls {
-		fmt.Printf("[%d/%d] Scraping: %s\n", i+1, len(urls), url)
-
-		park, duration, err := scraper.ScrapePark(url)
-		if err != nil {
-			log.Printf("Error scraping %s: %v", url, err)
-			continue
+	// Create callback function for when a park is scraped
+	onParkScraped := func(park *models.Park, duration time.Duration, timestamp time.Time) {
+		// Validate park data
+		if park == nil {
+			log.Printf("Error: received nil park in callback")
+			return
 		}
 
+		// Print park info with error handling for potentially invalid data
 		fmt.Printf("  ✓ %s (%.3f, %.3f) - %d activities - %v\n",
 			park.Name, park.Latitude, park.Longitude, len(park.Activities), duration)
 
 		// Publish event for scraped park
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("Error publishing park event for %s: %v", park.Name, r)
+			}
+		}()
+
 		publisher.Publish(events.ParkScrapedEvent{
 			Park:      park,
 			StateCode: stateCode,
-			URL:       url,
+			URL:       "", // URL not available in callback context
 			Duration:  duration,
-			Timestamp: time.Now(),
+			Timestamp: timestamp,
 		})
-
-		parks = append(parks, park)
 	}
+
+	// Create scraper
+	scraper := scrapers.NewBaseParkScraper(5, extractor, gatherer, onParkScraped)
+
+	scraper.ScrapeAllParks(homePageUrl)
 
 	return parks
 }

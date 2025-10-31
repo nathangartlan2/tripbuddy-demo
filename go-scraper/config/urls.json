@@ -1,19 +1,13 @@
 [
   {
     "state_code": "IL",
+    "baseUrl": "https://dnr.illinois.gov/",
+    "homePageUrl": "https://dnr.illinois.gov/content/soi/dnr/en/parks/allparks/jcr:content/responsivegrid/container/container/contentfragmentlist.model.json",
     "urls": [
       "https://dnr.illinois.gov/parks/park.starvedrock.html",
       "https://dnr.illinois.gov/parks/park.volobog.html",
       "https://dnr.illinois.gov/parks/park.chainolakes.html",
       "https://dnr.illinois.gov/parks/park.beallwoods.html"
-    ]
-  },
-  {
-    "state_code": "IN",
-    "urls": [
-      "https://www.in.gov/dnr/state-parks/parks-lakes/turkey-run-state-park/",
-      "https://www.in.gov/dnr/state-parks/parks-lakes/indiana-dunes-state-park/",
-      "https://www.in.gov/dnr/state-parks/parks-lakes/mounds-state-park/"
     ]
   }
 ]
