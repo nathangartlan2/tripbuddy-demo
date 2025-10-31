@@ -48,3 +48,9 @@ flowchart LR
 3. **Open** the [API Swagger Page](http://localhost:8080/swagger/index.html) in your browser
 4. Have fun!
 5. **Tear Down** by running `docker-compose down -v` (the `-v` flag removes the mounted volume that stores PostGres data on your machine)
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
