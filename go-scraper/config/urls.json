@@ -1,5 +1,11 @@
 [
   {
+    "state_code": "IN",
+    "baseUrl": "https://www.in.gov/",
+    "homePageUrl": "https://www.in.gov/dnr/state-parks/parks-lakes/",
+    "urls": []
+  },
+  {
     "state_code": "IL",
     "baseUrl": "https://dnr.illinois.gov/",
     "homePageUrl": "https://dnr.illinois.gov/content/soi/dnr/en/parks/allparks/jcr:content/responsivegrid/container/container/contentfragmentlist.model.json",

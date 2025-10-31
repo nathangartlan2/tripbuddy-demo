@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,12 +12,17 @@ import (
 	"scraper/scrapers"
 	"scraper/services"
 	"scraper/writers"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Parse command line arguments
+	statesFlag := flag.String("states", "", "Comma-separated list of state codes to scrape (e.g., 'IL,IN'). If empty, scrapes all states.")
+	flag.Parse()
+
 	// Load .env file (ignore error if file doesn't exist)
 	_ = godotenv.Load("config/.env")
 
@@ -24,6 +30,19 @@ func main() {
 	urlConfig, err := configHelper.LoadURLConfig("config/urls.json")
 	if err != nil {
 		log.Fatalf("Failed to load URL config: %v", err)
+	}
+
+	// Parse state filter
+	var statesToScrape []string
+	if *statesFlag != "" {
+		statesToScrape = strings.Split(*statesFlag, ",")
+		// Trim whitespace from each state code
+		for i := range statesToScrape {
+			statesToScrape[i] = strings.TrimSpace(statesToScrape[i])
+		}
+		fmt.Printf("Filtering to scrape only states: %v\n", statesToScrape)
+	} else {
+		fmt.Println("No state filter provided, scraping all states")
 	}
 
 	// Initialize geocoding service
@@ -57,7 +76,7 @@ func main() {
 	//publisher.Subscribe((apiWriter))
 
 	// Scrape parks for each state
-	results := scrapeAllStates(urlConfig, extractorFactory, publisher)
+	results := scrapeAllStates(urlConfig, extractorFactory, publisher, statesToScrape)
 
 	// Wait for all events to be processed
 	publisher.WaitForQueue()
@@ -69,11 +88,25 @@ func main() {
 	}
 }
 
-// scrapeAllStates takes the URL config and scrapes all parks for all states
-func scrapeAllStates(urlConfig *configHelper.URLConfig, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher) map[string][]*models.Park {
+// scrapeAllStates takes the URL config and scrapes all parks for all states (or filtered states)
+func scrapeAllStates(urlConfig *configHelper.URLConfig, factory *extractors.ExtractorFactory, publisher *events.ParkEventPublisher, stateFilter []string) map[string][]*models.Park {
 	results := make(map[string][]*models.Park)
 
+	// Create a map for quick lookup if filtering
+	filterMap := make(map[string]bool)
+	if len(stateFilter) > 0 {
+		for _, state := range stateFilter {
+			filterMap[state] = true
+		}
+	}
+
 	for _, stateCode := range urlConfig.GetAllStates() {
+		// Skip if not in filter (when filter is provided)
+		if len(stateFilter) > 0 && !filterMap[stateCode] {
+			fmt.Printf("Skipping %s (not in filter)\n", stateCode)
+			continue
+		}
+
 		baseURL, ok := urlConfig.GetBaseURLByState(stateCode)
 		if !ok || baseURL == "" {
 			log.Printf("No base URL found for state: %s, skipping", stateCode)
@@ -87,7 +120,7 @@ func scrapeAllStates(urlConfig *configHelper.URLConfig, factory *extractors.Extr
 			continue
 		}
 		fmt.Printf("\n=== Scraping %s ===\n", stateCode)
-		parks := scrapeParksByState(stateCode, baseURL, homePageUrl,factory, publisher)
+		parks := scrapeParksByState(stateCode, baseURL, homePageUrl, factory, publisher)
 		results[stateCode] = parks
 	}
 
@@ -105,8 +138,17 @@ func scrapeParksByState(stateCode string, baseUrl string, homePageUrl string, fa
 		return parks
 	}
 
-	// For now, we'll use empty string for base URL - you may want to pass this as a parameter
-	gatherer := scrapers.NewJSONParkUrlGatherer(baseUrl)
+	// Create appropriate URL gatherer based on state
+	var gatherer scrapers.ParkUrlGatherer
+	switch stateCode {
+	case "IL":
+		gatherer = scrapers.NewJSONParkUrlGatherer(baseUrl)
+	case "IN":
+		gatherer = scrapers.NewINHTMLParkUrlGatherer(baseUrl)
+	default:
+		log.Printf("No URL gatherer configured for state: %s", stateCode)
+		return parks
+	}
 
 	// Create callback function for when a park is scraped
 	onParkScraped := func(park *models.Park, duration time.Duration, timestamp time.Time) {
