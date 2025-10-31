@@ -115,6 +115,10 @@ docker-compose down -v
 
 ---
 
+## Service details
+
+- Scraper: `./go-scraper/README.md
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
