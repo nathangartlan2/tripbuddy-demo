@@ -36,7 +36,7 @@ func (w *APIParkWriter) OnParkScraped(event events.ParkScrapedEvent){
 	}
 
 	// Check response status
-	if resp.StatusCode == http.StatusOK {
+	if resp.StatusCode == 201 || resp.StatusCode == 200 {
 		fmt.Printf("[APIWriter] POST successful. API returned status %d", resp.StatusCode)
 	}else{
 		fmt.Printf("[APIWriter] POST Failed: %d", resp.StatusCode)
