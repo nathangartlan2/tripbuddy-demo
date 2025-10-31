@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"scraper/config"
+	"scraper/configHelper"
 	"scraper/events"
 	"scraper/extractors"
 	"scraper/models"
@@ -18,10 +18,10 @@ import (
 
 func main() {
 	// Load .env file (ignore error if file doesn't exist)
-	_ = godotenv.Load()
+	_ = godotenv.Load("config/.env")
 
 	// Load URL configuration from urls.json
-	urlConfig, err := config.LoadURLConfig("urls.json")
+	urlConfig, err := configHelper.LoadURLConfig("config/urls.json")
 	if err != nil {
 		log.Fatalf("Failed to load URL config: %v", err)
 	}

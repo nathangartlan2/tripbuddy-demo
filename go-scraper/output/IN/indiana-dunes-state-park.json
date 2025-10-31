@@ -1,0 +1,72 @@
+{
+  "name": "Indiana Dunes State Park",
+  "stateCode": "IN",
+  "latitude": 41,
+  "longitude": -86,
+  "activities": [
+    {
+      "Name": "Nature Center/Interpretive Naturalist Services Open daily, 9 a.m.-4 p.m. CT (closed on major state holidays)",
+      "description": ""
+    },
+    {
+      "Name": "Picnicking/Shelters (Shelter Reservations)",
+      "description": ""
+    },
+    {
+      "Name": "Access to Calumet Trail (9 miles of hiking)",
+      "description": ""
+    },
+    {
+      "Name": "Cross-country Skiing (trails available, no ski rental)",
+      "description": ""
+    },
+    {
+      "Name": "Fishing (Smelt Only)",
+      "description": ""
+    },
+    {
+      "Name": "Hiking Trails",
+      "description": ""
+    },
+    {
+      "Name": "3 Dune Hiking Challenge",
+      "description": ""
+    },
+    {
+      "Name": "Indiana Dunes Centennial Challenge",
+      "description": ""
+    },
+    {
+      "Name": "Swimming / Beach (Policy). Dogs are not allowed on the Indiana Dunes State Park beach. Mobility mats for easy beach access are available.",
+      "description": ""
+    },
+    {
+      "Name": "Birding (Dunes Birding Blog). Accessible bird observation tower available.",
+      "description": ""
+    },
+    {
+      "Name": "Electric - 140 (all 50 amp service)",
+      "description": ""
+    },
+    {
+      "Name": "Youth Tent Area",
+      "description": ""
+    },
+    {
+      "Name": "Campground reservations",
+      "description": ""
+    },
+    {
+      "Name": "Local tourism info",
+      "description": ""
+    },
+    {
+      "Name": "Regional tourism info",
+      "description": ""
+    },
+    {
+      "Name": "Friends of Indiana Dunes",
+      "description": ""
+    }
+  ]
+}

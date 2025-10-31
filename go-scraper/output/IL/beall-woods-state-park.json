@@ -1,0 +1,28 @@
+{
+  "name": "Beall Woods State Park",
+  "stateCode": "IL",
+  "latitude": 38.354,
+  "longitude": -87.828,
+  "activities": [
+    {
+      "Name": "Boating",
+      "description": ""
+    },
+    {
+      "Name": "Camping",
+      "description": ""
+    },
+    {
+      "Name": "Fishing",
+      "description": ""
+    },
+    {
+      "Name": "Hiking Trails",
+      "description": ""
+    },
+    {
+      "Name": "Metal Detecting",
+      "description": ""
+    }
+  ]
+}

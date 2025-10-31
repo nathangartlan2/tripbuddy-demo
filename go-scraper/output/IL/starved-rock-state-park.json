@@ -1,0 +1,32 @@
+{
+  "name": "Starved Rock State Park",
+  "stateCode": "IL",
+  "latitude": 41.309,
+  "longitude": -88.989,
+  "activities": [
+    {
+      "Name": "Boating",
+      "description": ""
+    },
+    {
+      "Name": "Camping",
+      "description": ""
+    },
+    {
+      "Name": "Fishing",
+      "description": ""
+    },
+    {
+      "Name": "Hiking Trails",
+      "description": ""
+    },
+    {
+      "Name": "Hunting",
+      "description": ""
+    },
+    {
+      "Name": "Kayaking",
+      "description": ""
+    }
+  ]
+}

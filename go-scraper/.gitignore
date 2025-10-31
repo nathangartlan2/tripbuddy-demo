@@ -32,7 +32,4 @@ go-scraper
 Thumbs.db
 
 # Scraped data output files
-*.json
-*.csv
-*.html
-raw_page.html
+data/

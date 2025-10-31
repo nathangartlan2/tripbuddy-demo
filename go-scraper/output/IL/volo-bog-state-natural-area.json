@@ -1,0 +1,20 @@
+{
+  "name": "Volo Bog State Natural Area",
+  "stateCode": "IL",
+  "latitude": 42.351,
+  "longitude": -88.189,
+  "activities": [
+    {
+      "Name": "Cross Country Skiing",
+      "description": ""
+    },
+    {
+      "Name": "Hiking Trails",
+      "description": ""
+    },
+    {
+      "Name": "Hunting",
+      "description": ""
+    }
+  ]
+}

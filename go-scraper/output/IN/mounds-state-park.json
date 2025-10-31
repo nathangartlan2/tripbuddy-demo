@@ -1,0 +1,52 @@
+{
+  "name": "Mounds State Park",
+  "stateCode": "IN",
+  "latitude": 41,
+  "longitude": -86,
+  "activities": [
+    {
+      "Name": "Visitor Center and Gift Shop/Interpretive Naturalist Services",
+      "description": ""
+    },
+    {
+      "Name": "Picnicking/Shelters (Shelter Reservations)",
+      "description": ""
+    },
+    {
+      "Name": "Hiking Trails",
+      "description": ""
+    },
+    {
+      "Name": "Fishing (White River)",
+      "description": ""
+    },
+    {
+      "Name": "Rental - Recreation Building",
+      "description": ""
+    },
+    {
+      "Name": "Camp Store",
+      "description": ""
+    },
+    {
+      "Name": "Electric / 75 sites",
+      "description": ""
+    },
+    {
+      "Name": "Youth Tent Areas",
+      "description": ""
+    },
+    {
+      "Name": "Dumping Station",
+      "description": ""
+    },
+    {
+      "Name": "Campground Reservations",
+      "description": ""
+    },
+    {
+      "Name": "Regional tourism info",
+      "description": ""
+    }
+  ]
+}
