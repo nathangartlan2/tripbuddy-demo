@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
 NPS[NPS API] -->|HTTP| Scraper[Go Scraper]
 Scraper -->|Generates| JSON[parks.json]
@@ -9,3 +10,4 @@ Scraper -->|Generates| JSON[parks.json]
       Repo --> DB[(PostgreSQL)]
 
       API -->|Embeddings| OpenAI[OpenAI API]
+```

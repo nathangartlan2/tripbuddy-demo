@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"scraper/config"
+	"scraper/configHelper"
 	"scraper/events"
 	"scraper/extractors"
 	"scraper/models"
@@ -18,10 +18,10 @@ import (
 
 func main() {
 	// Load .env file (ignore error if file doesn't exist)
-	_ = godotenv.Load()
+	_ = godotenv.Load("config/.env")
 
 	// Load URL configuration from urls.json
-	urlConfig, err := config.LoadURLConfig("urls.json")
+	urlConfig, err := configHelper.LoadURLConfig("config/urls.json")
 	if err != nil {
 		log.Fatalf("Failed to load URL config: %v", err)
 	}
@@ -44,8 +44,18 @@ func main() {
 	defer publisher.Close()
 
 	// Create and subscribe JSON writer
-	jsonWriter := writers.NewParkJSONWriter("output")
-	apiWriter := writers.NewAPIParkWriter("http://localhost:8080")
+	jsonWriter := writers.NewParkJSONWriter("data")
+
+	// Get API URL from environment variable, default to localhost
+	apiURL := os.Getenv("API_URL")
+	if apiURL == "" {
+		apiURL = "http://localhost:8080"
+		log.Println("API_URL not set, using default: http://localhost:8080")
+	} else {
+		log.Printf("Using API_URL: %s", apiURL)
+	}
+
+	apiWriter := writers.NewAPIParkWriter(apiURL)
 	publisher.Subscribe(jsonWriter)
 	publisher.Subscribe((apiWriter))
 
