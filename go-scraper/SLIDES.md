@@ -145,18 +145,24 @@ public class ILParkExtractor : ParkExtractor{
 <div>
 
 **Pros ✅**
-- Example pro item
+
+- **Small Interface** design encoraged. Only require a few methods
+- **Flexibility** : Use structs from external packages that implement the interface methods
+- **Refactoring** : If you need an interface and already have concrete types that satisfy the interface, you don't need to modify those types to explicitely refer to that new interface
 
 </div>
 
 <div>
 
 **Cons ❌**
-- Example con item
+
+- **Less Explicit**: It's less clear to the developer if a class in fact implements an interface
 
 </div>
 
 </div>
+
+**Bottom Line** Tough to get used to, clearly offers functional code advantages
 
 ---
 
@@ -288,7 +294,7 @@ publisher.Subscribe(jsonWriter)
 
 Let's see it in action!
 
-````bash
+```bash
 # Start the system
 docker-compose up
 
@@ -300,7 +306,7 @@ docker run --network tripbuddy-demo_tripbuddy-network \
 curl "http://localhost:8080/park/search?\
 latitude=41.8789&longitude=-87.6359&\
 activity=ski&radiusKm=1000"
-```V
+```
 
 ---
 
@@ -316,9 +322,10 @@ activity=ski&radiusKm=1000"
 
 ## Resources
 
-**Code:** [github.com/yourusername/tripbuddy-demo](https://github.com/yourusername/tripbuddy-demo)
+**Code:** [github.com/nathangartlan2/tripbuddy-demo](https://github.com/nathangartlan2/tripbuddy-demo)
 
 **Documentation:**
+
 - `go-scraper/README.md` - Full implementation details
 - `go-scraper/OBSERVER_PATTERN.md` - Observer pattern deep-dive
 
@@ -331,4 +338,3 @@ activity=ski&radiusKm=1000"
 **Nathan Gartlan**
 
 Ready to explore the code?
-````
