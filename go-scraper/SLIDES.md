@@ -140,11 +140,11 @@ public class ILParkExtractor : ParkExtractor{
 
 ### Implicit Interfaces: Pros & Cons
 
-| **Pros ✅** | **Cons ❌** |
-|------------|------------|
-| **Small Interface** design encouraged. Only require a few methods | **Less Explicit**: It's less clear to the developer if a class in fact implements an interface |
-| **Flexibility**: Use structs from external packages that implement the interface methods | |
-| **Refactoring**: If you need an interface and already have concrete types that satisfy the interface, you don't need to modify those types to explicitly refer to that new interface | |
+| **Pros ✅**                                                                                                                                                                          | **Cons ❌**                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| **Small Interface** design encouraged. Only require a few methods                                                                                                                    | **Less Explicit**: It's less clear to the developer if a class in fact implements an interface |
+| **Flexibility**: Use structs from external packages that implement the interface methods                                                                                             |                                                                                                |
+| **Refactoring**: If you need an interface and already have concrete types that satisfy the interface, you don't need to modify those types to explicitly refer to that new interface |                                                                                                |
 
 **Bottom Line**: Tough to get used to, clearly offers functional code advantages
 
@@ -175,80 +175,88 @@ type ParkEventSubscriber interface {
 
 ## Observer Pattern Architecture
 
-```
-┌─────────────────┐
-│   Scraper       │
-└────────┬────────┘
-         │ scrapes park
-         ▼
-    ┌────────────────────┐
-    │ ParkScrapedEvent   │
-    └────────┬───────────┘
-             │
-             ▼
-    ┌────────────────────┐
-    │ EventPublisher     │ (buffered queue)
-    └────────┬───────────┘
-             │
-             ├─────────────────────┐
-             ▼                     ▼
-    ┌────────────────┐    ┌────────────────┐
-    │ JSON Writer    │    │  API Client    │
-    └────────────────┘    └────────────────┘
-```
+```mermaid
+classDiagram
+    class BaseParkScraper {
+        -onParkScraped func()
+        -extractor ParkExtractor
+        +ScrapePark(url string) Park
+        +ScrapeAllParks(url string) []Park
+    }
 
----
+    class ParkEventSubscriber {
+        <<interface>>
+        +OnParkScraped(event ParkScrapedEvent)
+    }
 
-## Observer Pattern Benefits
+    class ParkEventPublisher {
+        -subscribers []ParkEventSubscriber
+        -eventQueue chan ParkScrapedEvent
+        +Subscribe(subscriber ParkEventSubscriber)
+        +Publish(event ParkScrapedEvent)
+        +Close()
+    }
 
-✅ **Decoupling** - Scraper doesn't know about storage
-✅ **Async Processing** - Events processed in background
-✅ **Extensibility** - Easy to add new subscribers
-✅ **Testability** - Mock subscribers for testing
-✅ **Performance** - Non-blocking scraping
+    class FileParkWriter {
+        -outputDir string
+        +OnParkScraped(event ParkScrapedEvent)
+    }
 
----
+    class APIParkWriter {
+        -apiURL string
+        +OnParkScraped(event ParkScrapedEvent)
+    }
 
-## Pattern #2: Factory Pattern
+    class ParkScrapedEvent {
+        +Park *models.Park
+        +StateCode string
+        +URL string
+        +Duration time.Duration
+    }
 
-**Problem:** Different states have different HTML structures
-
-**Solution:** Factory creates state-specific scrapers
-
-```go
-type StateParserFactory interface {
-    CreateStateParser(stateCode string) StateParser
-}
-
-// Get the right parser for each state
-parser := factory.CreateStateParser("IL")
-parks := parser.ParseParks(html)
+    BaseParkScraper --> ParkEventPublisher : indirectly calls Publish()
+    ParkEventPublisher --> ParkEventSubscriber : notifies
+    ParkEventPublisher --> ParkScrapedEvent : publishes
+    FileParkWriter ..|> ParkEventSubscriber : implements
+    APIParkWriter ..|> ParkEventSubscriber : implements
 ```
 
 ---
 
-## Pattern #3: Goroutines & Channels
+## Event Queue Processing
 
-**Concurrency** for scraping multiple states/parks
+```mermaid
+sequenceDiagram
+    participant S as BaseParkScraper
+    participant CB as onParkScraped callback
+    participant P as ParkEventPublisher
+    participant Q as eventQueue (buffered chan)
+    participant G as processEvents goroutine
+    participant Sub1 as FileParkWriter
+    participant Sub2 as APIParkWriter
 
-```go
-// Process multiple states concurrently
-var wg sync.WaitGroup
+    S->>CB: Scrapes park, calls callback
+    CB->>P: Publish(event)
+    P->>Q: event → queue (non-blocking)
+    Note over Q: Buffered channel<br/>(100 events)
 
-for _, state := range states {
-    wg.Add(1)
-    go func(stateCode string) {
-        defer wg.Done()
-        scrapeParksByState(stateCode)
-    }(state)
-}
+    Q->>G: event received
+    G->>Sub1: OnParkScraped(event)
+    S->>CB: Scrapes another park
 
-wg.Wait() // Wait for all goroutines
+    G->>Sub2: OnParkScraped(event)
+
+    Note over G,Sub2: Events processed<br/>asynchronously
+
+    CB->>P: Publish(event)
+    P->>Q: event → queue
+
+    Note over S,Q: Scraping continues<br/>without blocking
 ```
 
 ---
 
-## Real-World Example
+## Observer pattern in code Example
 
 **Event Structure:**
 
@@ -270,7 +278,20 @@ defer publisher.Close()
 
 jsonWriter := writers.NewParkJSONWriter("output")
 publisher.Subscribe(jsonWriter)
+
+publisher.WaitForQueue()
+
 ```
+
+---
+
+## Observer Pattern Benefits
+
+✅ **Decoupling** - Scraper doesn't know about storage
+✅ **Async Processing** - Events processed in background
+✅ **Extensibility** - Easy to add new subscribers
+✅ **Testability** - Mock subscribers for testing
+✅ **Performance** - Non-blocking scraping
 
 ---
 
