@@ -140,29 +140,13 @@ public class ILParkExtractor : ParkExtractor{
 
 ### Implicit Interfaces: Pros & Cons
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+| **Pros ✅** | **Cons ❌** |
+|------------|------------|
+| **Small Interface** design encouraged. Only require a few methods | **Less Explicit**: It's less clear to the developer if a class in fact implements an interface |
+| **Flexibility**: Use structs from external packages that implement the interface methods | |
+| **Refactoring**: If you need an interface and already have concrete types that satisfy the interface, you don't need to modify those types to explicitly refer to that new interface | |
 
-<div>
-
-**Pros ✅**
-
-- **Small Interface** design encoraged. Only require a few methods
-- **Flexibility** : Use structs from external packages that implement the interface methods
-- **Refactoring** : If you need an interface and already have concrete types that satisfy the interface, you don't need to modify those types to explicitely refer to that new interface
-
-</div>
-
-<div>
-
-**Cons ❌**
-
-- **Less Explicit**: It's less clear to the developer if a class in fact implements an interface
-
-</div>
-
-</div>
-
-**Bottom Line** Tough to get used to, clearly offers functional code advantages
+**Bottom Line**: Tough to get used to, clearly offers functional code advantages
 
 ---
 
