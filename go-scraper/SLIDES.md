@@ -258,18 +258,6 @@ sequenceDiagram
 
 ## Observer pattern in code Example
 
-**Event Structure:**
-
-```go
-type ParkScrapedEvent struct {
-    Park      models.Park
-    StateCode string
-    URL       string
-    Duration  time.Duration
-    Timestamp time.Time
-}
-```
-
 **Publisher with buffered queue:**
 
 ```go
@@ -287,11 +275,11 @@ publisher.WaitForQueue()
 
 ## Observer Pattern Benefits
 
-✅ **Decoupling** - Scraper doesn't know about storage
-✅ **Async Processing** - Events processed in background
-✅ **Extensibility** - Easy to add new subscribers
-✅ **Testability** - Mock subscribers for testing
-✅ **Performance** - Non-blocking scraping
+1. **Decoupling** - Scraper doesn't know about storage
+2. **Async Processing** - Events processed in background
+3. **Extensibility** - Easy to add new subscribers
+4. **Testability** - Mock subscribers for testing
+5. **Performance** - Non-blocking scraping
 
 ---
 
@@ -315,13 +303,10 @@ activity=ski&radiusKm=1000"
 
 ---
 
-## Key Takeaways
+## Summary of Key Patterns
 
-1. **Observer Pattern** - Decouple scraping from persistence
-2. **Factory Pattern** - Handle different HTML structures per state
-3. **Goroutines** - Concurrent scraping for performance
-4. **Standard Library** - Go's `net/http` is powerful
-5. **Type Safety** - Structs and interfaces prevent bugs
+1. **Strategy Pattern** - Handling different problems with common interfaces
+2. **Observer Pattern** - Decouple scraping from persistence, asynchronously
 
 ---
 
@@ -342,4 +327,4 @@ activity=ski&radiusKm=1000"
 
 **Nathan Gartlan**
 
-Ready to explore the code?
+Check out the code!
