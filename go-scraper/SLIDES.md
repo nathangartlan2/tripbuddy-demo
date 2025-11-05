@@ -7,7 +7,8 @@ November 6, 2025
 
 ---
 
-## The Problem
+<details>
+<summary><h2>The Problem</h2></summary>
 
 Finding outdoor activities across multiple state park websites
 
@@ -21,9 +22,12 @@ Finding outdoor activities across multiple state park websites
 
 **Goal:** Scrape park data → Store in Searchable API
 
+</details>
+
 ---
 
-## System Architecture
+<details>
+<summary><h2>System Architecture</h2></summary>
 
 ```mermaid
 flowchart LR
@@ -37,19 +41,29 @@ flowchart LR
     style F fill:#336791,color:#fff
 ```
 
----
-
-## Why Go for Web Scraping?
-
-✅ **Fast compilation** - Quick iteration during development
-✅ **Single binary** - Easy deployment (Docker, no dependencies)
-✅ **Good Scraping Library** - `github.com/gocolly/colly`
-✅ **Strong concurrency** - Goroutines for parallelism/async operations
-✅ **Type safety** - Catch errors at compile time
+</details>
 
 ---
 
-## Pattern #1: Strategy Pattern
+<details>
+<summary><h2>Why Go for Web Scraping?</h2></summary>
+
+1. **Fast compilation** - Quick iteration during development
+
+2. **Single binary** - Easy deployment (Docker, no dependencies)
+
+3. **Good Scraping Library** - `github.com/gocolly/colly`
+
+4. **Strong concurrency** - Goroutines for parallelism/async operations
+
+5. **Type safety** - Catch errors at compile time
+
+</details>
+
+---
+
+<details>
+<summary><h2>Pattern #1: Strategy Pattern</h2></summary>
 
 **Problem:** Scraping park pages from different domains requires knowledge of different structures and data.
 
@@ -73,9 +87,12 @@ flowchart LR
 </p>
 ```
 
+</details>
+
 ---
 
-## Solution: Strategy Pattern
+<details>
+<summary><h2>Solution: Strategy Pattern</h2></summary>
 
 **Solution**: Create an interface that abstracts the specific details of scraping a park
 
@@ -105,9 +122,12 @@ classDiagram
     BaseParkScraper --> ParkExtractor : uses
 ```
 
+</details>
+
 ---
 
-## Implicit Interfaces in Go
+<details>
+<summary><h2>Implicit Interfaces in Go</h2></summary>
 
 **Interface in Go**
 
@@ -126,9 +146,12 @@ public class ILParkExtractor : ParkExtractor{
 }
 ```
 
+</details>
+
 ---
 
-## Implicit Interfaces: Pros & Cons
+<details>
+<summary><h2>Implicit Interfaces: Pros & Cons</h2></summary>
 
 | **Pros ✅**                                                                                                                                                                          | **Cons ❌**                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
@@ -138,9 +161,12 @@ public class ILParkExtractor : ParkExtractor{
 
 **Bottom Line**: Tough to get used to, clearly offers functional code advantages
 
+</details>
+
 ---
 
-## Pattern #2: Observer Pattern
+<details>
+<summary><h2>Pattern #2: Observer Pattern</h2></summary>
 
 **Problem:** Scraper shouldn't care about persistence logic
 
@@ -161,9 +187,12 @@ type ParkEventSubscriber interface {
 }
 ```
 
+</details>
+
 ---
 
-## Observer Pattern Architecture
+<details>
+<summary><h2>Observer Pattern Architecture</h2></summary>
 
 ```mermaid
 classDiagram
@@ -211,9 +240,12 @@ classDiagram
     APIParkWriter ..|> ParkEventSubscriber : implements
 ```
 
+</details>
+
 ---
 
-## Event Queue Processing
+<details>
+<summary><h2>Event Queue Processing</h2></summary>
 
 ```mermaid
 sequenceDiagram
@@ -244,9 +276,12 @@ sequenceDiagram
     Note over S,Q: Scraping continues<br/>without blocking
 ```
 
+</details>
+
 ---
 
-## Observer Pattern in Code Example
+<details>
+<summary><h2>Observer Pattern in Code Example</h2></summary>
 
 **Publisher with buffered queue:**
 
@@ -261,9 +296,12 @@ publisher.WaitForQueue()
 
 ```
 
+</details>
+
 ---
 
-## Observer Pattern Benefits
+<details>
+<summary><h2>Observer Pattern Benefits</h2></summary>
 
 1. **Decoupling** - Scraper doesn't know about storage
 2. **Async Processing** - Events processed in background
@@ -271,9 +309,12 @@ publisher.WaitForQueue()
 4. **Testability** - Mock subscribers for testing
 5. **Performance** - Non-blocking scraping
 
+</details>
+
 ---
 
-## Demo Time
+<details>
+<summary><h2>Demo Time</h2></summary>
 
 Let's see it in action!
 
@@ -291,16 +332,22 @@ latitude=41.8789&longitude=-87.6359&\
 activity=ski&radiusKm=1000"
 ```
 
+</details>
+
 ---
 
-## Summary of Key Patterns
+<details>
+<summary><h2>Summary of Key Patterns</h2></summary>
 
 1. **Strategy Pattern** - Handling different problems with common interfaces
 2. **Observer Pattern** - Decouple scraping from persistence, asynchronously
 
+</details>
+
 ---
 
-## Resources
+<details>
+<summary><h2>Resources</h2></summary>
 
 **Code:** [github.com/nathangartlan2/tripbuddy-demo](https://github.com/nathangartlan2/tripbuddy-demo)
 
@@ -310,6 +357,8 @@ activity=ski&radiusKm=1000"
 - `go-scraper/OBSERVER_PATTERN.md` - Observer pattern deep-dive
 
 **Questions?**
+
+</details>
 
 ---
 
