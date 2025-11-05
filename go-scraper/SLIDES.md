@@ -10,11 +10,11 @@ November 6, 2025
 <details>
 <summary><h2>About Me</h2></summary>
 
-<table style="white-space: nowrap;">
+<table style="white-space: nowrap; border: none;">
   <tr>
-    <td><img src="./images/IMG_3901.jpeg" alt="Nathan In London" height="300" style="object-fit: contain;"/></td>
-    <td><img src="./images/IMG_9312.jpeg" alt="Nathan In Turkey" height="300" style="object-fit: contain;"/></td>
-    <td><img src="./images/IMG_6772.jpeg" alt="Nathan in Scotland" height="300" style="object-fit: contain;"/></td>
+    <td style="border: none;"><img src="./images/IMG_3901.jpeg" alt="Nathan In London" height="300" style="object-fit: contain;"/></td>
+    <td style="border: none;"><img src="./images/IMG_9312.jpeg" alt="Nathan In Turkey" height="300" style="object-fit: contain;"/></td>
+    <td style="border: none;"><img src="./images/IMG_6772.jpeg" alt="Nathan in Scotland" height="300" style="object-fit: contain;"/></td>
   </tr>
 </table>
 <ul>
@@ -386,14 +386,14 @@ activity=ski&radiusKm=1000"
 # Thank You!
 
 <div style="text-align: center;">
-  <table style="white-space: nowrap; margin: 0 auto;">
+  <table style="white-space: nowrap; margin: 0 auto; border: none;">
     <tr>
-      <td style="text-align: center; padding-right: 40px;">
-        <img src="./images/linkedin.jpeg" alt="Nathan Gartlan on LinkedIn" style="object-fit: contain;"/>
+      <td style="text-align: center; padding-right: 40px; width: 50%; border: none;">
+        <img src="./images/linkedin.jpeg" alt="Nathan Gartlan on LinkedIn" width="500" style="object-fit: contain;"/>
       </td>
-      <td style="text-align: center; padding-left: 40px;">
+      <td style="text-align: center; padding-left: 40px; width: 50%; border: none;">
         <h3>Feedback Form</h3>
-        <img src="./images/feedback_form.png" alt="Feedback Form" height="300" style="object-fit: contain;"/>
+        <img src="./images/feedback_form.png" alt="Feedback Form" width="200" style="object-fit: contain;"/>
       </td>
     </tr>
   </table>
