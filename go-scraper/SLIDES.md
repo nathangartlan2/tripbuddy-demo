@@ -49,11 +49,11 @@ flowchart LR
 
 ---
 
-## Pattern #1: Stragegy Patterm
+## Pattern #1: Strategy Pattern
 
 **Problem:** Scraping park pages from different domains requires knowledge of different structures and data.
 
-**Latitude Illinois State Parks HTML Structure**
+**Illinois State Parks Latitude HTML Structure**
 
 ```html
   <div cmp-contentfragment__element--parkLatitude">
@@ -63,7 +63,7 @@ flowchart LR
   </div>
 ```
 
-**Address in State Parks HTML Structure**
+**Indiana State Parks Address HTML Structure**
 
 ```html
 <p>
@@ -246,7 +246,7 @@ sequenceDiagram
 
 ---
 
-## Observer pattern in code Example
+## Observer Pattern in Code Example
 
 **Publisher with buffered queue:**
 
