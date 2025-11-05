@@ -48,11 +48,15 @@ flowchart LR
 <details>
 <summary><h2>Why Go for Web Scraping?</h2></summary>
 
-✅ **Fast compilation** - Quick iteration during development
-✅ **Single binary** - Easy deployment (Docker, no dependencies)
-✅ **Good Scraping Library** - `github.com/gocolly/colly`
-✅ **Strong concurrency** - Goroutines for parallelism/async operations
-✅ **Type safety** - Catch errors at compile time
+1. **Fast compilation** - Quick iteration during development
+
+2. **Single binary** - Easy deployment (Docker, no dependencies)
+
+3. **Good Scraping Library** - `github.com/gocolly/colly`
+
+4. **Strong concurrency** - Goroutines for parallelism/async operations
+
+5. **Type safety** - Catch errors at compile time
 
 </details>
 
