@@ -1,9 +1,3 @@
----
-marp: true
-theme: default
-paginate: true
----
-
 # Go Software Design Patterns
 
 ## Building a State Park Web Scraper
@@ -25,7 +19,7 @@ Finding outdoor activities across multiple state park websites
   </tr>
 </table>
 
-**Goal:** Scrape park data → Store in searchable database
+**Goal:** Scrape park data → Store in Searchable API
 
 ---
 
@@ -50,12 +44,12 @@ flowchart LR
 ✅ **Fast compilation** - Quick iteration during development
 ✅ **Single binary** - Easy deployment (Docker, no dependencies)
 ✅ **Good Scraping Library** - `github.com/gocolly/colly`
-✅ **Strong concurrency** - Goroutines for parallel scraping
+✅ **Strong concurrency** - Goroutines for parallelism/async operations
 ✅ **Type safety** - Catch errors at compile time
 
 ---
 
-## Pattern #1: Strategy Pattern (1/4)
+## Pattern #1: Stragegy Patterm
 
 **Problem:** Scraping park pages from different domains requires knowledge of different structures and data.
 
@@ -81,7 +75,7 @@ flowchart LR
 
 ---
 
-## Pattern #1: Strategy Pattern (2/4)
+## Solution: Strategy Pattern
 
 **Solution**: Create an interface that abstracts the specific details of scraping a park
 
@@ -113,9 +107,7 @@ classDiagram
 
 ---
 
-## Pattern #1: Strategy Pattern (3/4)
-
-### Implicit Interfaces in Go
+## Implicit Interfaces in Go
 
 **Interface in Go**
 
@@ -136,9 +128,7 @@ public class ILParkExtractor : ParkExtractor{
 
 ---
 
-## Pattern #1: Strategy Pattern (4/4)
-
-### Implicit Interfaces: Pros & Cons
+## Implicit Interfaces: Pros & Cons
 
 | **Pros ✅**                                                                                                                                                                          | **Cons ❌**                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
