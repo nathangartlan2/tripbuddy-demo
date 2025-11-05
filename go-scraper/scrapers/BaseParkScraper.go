@@ -50,11 +50,6 @@ func (s *BaseParkScraper) ScrapePark(url string) (*models.Park, time.Duration, e
 				s.waitMS /= 2
 			}
 
-			// Call callback if provided
-			if s.onParkScraped != nil {
-				s.onParkScraped(Park, elapsed, time.Now())
-			}
-
 			return Park, elapsed, nil
 		} else {
 			fmt.Printf("[Retry %d/%d] Error scraping URL: %s\n", i+1, s.maxRetries, url)

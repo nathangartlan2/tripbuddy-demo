@@ -73,7 +73,7 @@ func main() {
 
 	apiWriter := writers.NewAPIParkWriter(apiURL)
 	publisher.Subscribe(jsonWriter)
-	publisher.Subscribe((apiWriter))
+	publisher.Subscribe(apiWriter)
 
 	// Scrape parks for each state
 	results := scrapeAllStates(urlConfig, extractorFactory, publisher, statesToScrape)
