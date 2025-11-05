@@ -385,6 +385,16 @@ activity=ski&radiusKm=1000"
 
 # Thank You!
 
-**Nathan Gartlan**
-
-Check out the code!
+<div style="text-align: center;">
+  <table style="white-space: nowrap; margin: 0 auto;">
+    <tr>
+      <td style="text-align: center; padding-right: 40px;">
+        <img src="./images/linkedin.jpeg" alt="Nathan Gartlan on LinkedIn" style="object-fit: contain;"/>
+      </td>
+      <td style="text-align: center; padding-left: 40px;">
+        <h3>Feedback Form</h3>
+        <img src="./images/feedback_form.png" alt="Feedback Form" height="300" style="object-fit: contain;"/>
+      </td>
+    </tr>
+  </table>
+</div>
