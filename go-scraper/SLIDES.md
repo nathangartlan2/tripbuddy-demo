@@ -8,6 +8,27 @@ November 6, 2025
 ---
 
 <details>
+<summary><h2>About Me</h2></summary>
+
+<table style="white-space: nowrap;">
+  <tr>
+    <td><img src="./images/IMG_3901.jpeg" alt="Nathan In London" height="300" style="object-fit: contain;"/></td>
+    <td><img src="./images/IMG_9312.jpeg" alt="Nathan In Turkey" height="300" style="object-fit: contain;"/></td>
+    <td><img src="./images/IMG_6772.jpeg" alt="Nathan in Scotland" height="300" style="object-fit: contain;"/></td>
+  </tr>
+</table>
+<ul>
+    <li>Recently returned from a 6 month career break to live in London and travel</li>
+    <li>6 years development experience in C#, JavaScript, and Python</li>
+    <li>Currently open to my next career opportunity</li>
+    <li>I'm a Go Padawan!</li>
+</ul>
+
+</details>
+
+---
+
+<details>
 <summary><h2>The Problem</h2></summary>
 
 Finding outdoor activities across multiple state park websites
