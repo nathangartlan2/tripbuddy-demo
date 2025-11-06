@@ -119,7 +119,7 @@ docker-compose down -v
 
 ## Service details
 
-- Scraper: `./go-scraper/README.md
+- TO DO: describe services more completely
 
 ## License
 
