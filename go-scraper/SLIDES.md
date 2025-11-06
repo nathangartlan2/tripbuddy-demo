@@ -353,6 +353,8 @@ latitude=41.8789&longitude=-87.6359&\
 activity=ski&radiusKm=1000"
 ```
 
+See [README.md](../README.md) for teardown instructions
+
 </details>
 
 ---
