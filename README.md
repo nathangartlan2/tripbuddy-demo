@@ -1,5 +1,7 @@
 # tripbuddy-demo
 
+[CLICK HERE](./go-scraper/SLIDES.md) for Go Scraper Presentation
+
 ## API for searching US state parks and Go web scraper to populate data
 
 This project builds a platform for outdoor enthusiasts to find outdoor activities in their area. The main use case is to request the API `/search` endpoint with a set of starting coordinates(latitide and longitude), a travel radius, and an activity (hiking, camping, etc.). The `/search` endpoint will return state parks within the radius that offer the activity.
